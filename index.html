@@ -78,6 +78,76 @@
         <li>🏃 Athlétisme</li>
         <li>🏸 Badminton</li>
       </ul>
+<section id="admin">
+    <h2>Ajouter un nouveau résultat</h2>
+    <form id="adminForm">
+        <label for="sport">Sport :</label>
+        <input type="text" id="sport" name="sport" required><br>
+
+        <label for="teamA">Équipe A :</label>
+        <input type="text" id="teamA" name="teamA" required><br>
+
+        <label for="teamB">Équipe B :</label>
+        <input type="text" id="teamB" name="teamB" required><br>
+
+        <label for="scoreA">Score A :</label>
+        <input type="number" id="scoreA" name="scoreA" required><br>
+
+        <label for="scoreB">Score B :</label>
+        <input type="number" id="scoreB" name="scoreB" required><br>
+
+        <label for="date">Date :</label>
+        <input type="date" id="date" name="date" required><br>
+
+        <button type="submit">Ajouter le match</button>
+    </form>
+</section>
+
+<script>
+    // L'ID de ta feuille Google Sheets et ta clé API
+    const apiKey = "VOTRE_CLE_API";  // Remplace par ta clé API
+    const sheetID = "1GMiN-xxxWyXgUGfZcRswYzEqQIDrY__xxXz5mxl7Tw5FJQ";  // Remplace par l'ID de ta feuille
+    const sheetName = "Sheet1";  // Remplace par le nom de ta feuille
+
+    // Fonction pour ajouter les données dans la Google Sheet via l'API
+    document.getElementById("adminForm").addEventListener("submit", function (event) {
+        event.preventDefault();  // Empêche le formulaire de se soumettre normalement
+
+        // Récupère les données du formulaire
+        const sport = document.getElementById("sport").value;
+        const teamA = document.getElementById("teamA").value;
+        const teamB = document.getElementById("teamB").value;
+        const scoreA = document.getElementById("scoreA").value;
+        const scoreB = document.getElementById("scoreB").value;
+        const date = document.getElementById("date").value;
+
+        // Structure les données à envoyer à Google Sheets
+        const data = {
+            values: [
+                [sport, teamA, teamB, scoreA, scoreB, date]
+            ]
+        };
+
+        // Envoi des données via l'API Google Sheets
+        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS&key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(() => {
+            alert("Match ajouté avec succès !");
+            document.getElementById("adminForm").reset();  // Réinitialise le formulaire
+        })
+        .catch(error => {
+            console.error("Erreur lors de l'ajout des données : ", error);
+            alert("Impossible d'ajouter les données.");
+        });
+    });
+</script>
+
       <p>(Les résultats seront affichés ici automatiquement.)</p>
     </div>
 
