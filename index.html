@@ -1,190 +1,167 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GUAI BORDEL'SS 2025</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background-color: #f4f4f4;
-    }
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    img.logo {
-      max-height: 80px;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: #34495e;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .content {
-      padding: 1rem;
-    }
-    .section {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    @media (max-width: 600px) {
-      nav button {
-        width: 90%;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUAI BORDEL'SS 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        section {
+            margin: 20px;
+        }
+
+        .match,
+        .team {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .team h3 {
+            margin: 0;
+        }
+
+        .match h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .match p {
+            margin: 0.5em 0;
+        }
+
+        #results,
+        #ranking {
+            margin-bottom: 40px;
+        }
+    </style>
 </head>
+
 <body>
-  <header>
-    <img src="logo.png" alt="Logo" class="logo" />
-    <h1>GUAI BORDEL'SS 2025</h1>
-  </header>
 
-  <nav>
-    <button onclick="showSection('accueil')">Accueil</button>
-    <button onclick="showSection('sports')">Sports</button>
-    <button onclick="showSection('classement')">Classement</button>
-  </nav>
+    <header>
+        <h1>GUAI BORDEL'SS 2025</h1>
+    </header>
 
-  <div class="content">
-    <div id="accueil" class="section active">
-      <h2>Bienvenue !</h2>
-      <p>Retrouvez ici toutes les infos des GUAI BORDEL'SS 2025.</p>
-    </div>
+    <section id="results">
+        <h2>Résultats des matchs</h2>
+        <div id="matches">
+            <!-- Les matchs seront insérés ici dynamiquement par JavaScript -->
+        </div>
+    </section>
 
-    <div id="sports" class="section">
-      <h2>Résultats par sport</h2>
-      <ul>
-        <li>🏈 Rugby</li>
-        <li>⚽ Football</li>
-        <li>🏀 Handball</li>
-        <li>🏊 Natation</li>
-        <li>🏃 Athlétisme</li>
-        <li>🏸 Badminton</li>
-      </ul>
-<section id="admin">
-    <h2>Ajouter un nouveau résultat</h2>
-    <form id="adminForm">
-        <label for="sport">Sport :</label>
-        <input type="text" id="sport" name="sport" required><br>
+    <section id="ranking">
+        <h2>Classement des équipes</h2>
+        <div id="rankings">
+            <!-- Le classement sera affiché ici -->
+        </div>
+    </section>
 
-        <label for="teamA">Équipe A :</label>
-        <input type="text" id="teamA" name="teamA" required><br>
+    <script>
+        // L'ID de ta feuille Google Sheets et ta clé API
+        const apiKey = "VOTRE_CLE_API";  // Remplace par ta clé API
+        const sheetID = "2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT";  // Remplace par l'ID de ta feuille
+        const sheetName = "Sheet1";  // Remplace par le nom de ta feuille
 
-        <label for="teamB">Équipe B :</label>
-        <input type="text" id="teamB" name="teamB" required><br>
+        // Fonction pour récupérer les matchs depuis Google Sheets
+        function fetchMatches() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const matches = data.values;
+                    const matchesContainer = document.getElementById("matches");
+                    matchesContainer.innerHTML = ""; // Réinitialise le contenu avant d'ajouter les nouveaux matchs
 
-        <label for="scoreA">Score A :</label>
-        <input type="number" id="scoreA" name="scoreA" required><br>
+                    // Affiche chaque match
+                    matches.slice(1).forEach(match => {
+                        const sport = match[0];
+                        const teamA = match[1];
+                        const teamB = match[2];
+                        const scoreA = match[3];
+                        const scoreB = match[4];
+                        const date = match[5];
 
-        <label for="scoreB">Score B :</label>
-        <input type="number" id="scoreB" name="scoreB" required><br>
+                        const matchHTML = `
+                            <div class="match">
+                                <h3>${sport} - ${date}</h3>
+                                <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+                            </div>
+                        `;
+                        matchesContainer.innerHTML += matchHTML;
+                    });
+                })
+                .catch(error => console.error("Erreur lors de la récupération des matchs : ", error));
+        }
 
-        <label for="date">Date :</label>
-        <input type="date" id="date" name="date" required><br>
+        // Fonction pour calculer et afficher le classement des équipes
+        function fetchRankings() {
+            fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}?key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const matches = data.values;
+                    const rankings = {};
 
-        <button type="submit">Ajouter le match</button>
-    </form>
-</section>
+                    // Calcul du score total pour chaque équipe
+                    matches.slice(1).forEach(match => {
+                        const teamA = match[1];
+                        const teamB = match[2];
+                        const scoreA = parseInt(match[3]);
+                        const scoreB = parseInt(match[4]);
 
-<script>
-    // L'ID de ta feuille Google Sheets et ta clé API
-    const apiKey = "VOTRE_CLE_API";  // Remplace par ta clé API
-    const sheetID = "1GMiN-xxxWyXgUGfZcRswYzEqQIDrY__xxXz5mxl7Tw5FJQ";  // Remplace par l'ID de ta feuille
-    const sheetName = "Sheet1";  // Remplace par le nom de ta feuille
+                        // Mise à jour des classements
+                        rankings[teamA] = rankings[teamA] ? rankings[teamA] + scoreA : scoreA;
+                        rankings[teamB] = rankings[teamB] ? rankings[teamB] + scoreB : scoreB;
+                    });
 
-    // Fonction pour ajouter les données dans la Google Sheet via l'API
-    document.getElementById("adminForm").addEventListener("submit", function (event) {
-        event.preventDefault();  // Empêche le formulaire de se soumettre normalement
+                    // Trier les équipes par score (du plus haut au plus bas)
+                    const sortedRankings = Object.entries(rankings)
+                        .sort((a, b) => b[1] - a[1]);
 
-        // Récupère les données du formulaire
-        const sport = document.getElementById("sport").value;
-        const teamA = document.getElementById("teamA").value;
-        const teamB = document.getElementById("teamB").value;
-        const scoreA = document.getElementById("scoreA").value;
-        const scoreB = document.getElementById("scoreB").value;
-        const date = document.getElementById("date").value;
+                    const rankingsContainer = document.getElementById("rankings");
+                    rankingsContainer.innerHTML = "";  // Réinitialiser le contenu
 
-        // Structure les données à envoyer à Google Sheets
-        const data = {
-            values: [
-                [sport, teamA, teamB, scoreA, scoreB, date]
-            ]
-        };
+                    // Afficher le classement
+                    sortedRankings.forEach(([team, points], index) => {
+                        const rankingHTML = `
+                            <div class="team">
+                                <h3>${index + 1}. ${team} - ${points} points</h3>
+                            </div>
+                        `;
+                        rankingsContainer.innerHTML += rankingHTML;
+                    });
+                })
+                .catch(error => console.error("Erreur lors de la récupération du classement : ", error));
+        }
 
-        // Envoi des données via l'API Google Sheets
-        fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${sheetName}:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS&key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(() => {
-            alert("Match ajouté avec succès !");
-            document.getElementById("adminForm").reset();  // Réinitialise le formulaire
-        })
-        .catch(error => {
-            console.error("Erreur lors de l'ajout des données : ", error);
-            alert("Impossible d'ajouter les données.");
-        });
-    });
-</script>
+        // Appeler la fonction pour récupérer les matchs et afficher le classement au chargement de la page
+        fetchMatches();
+        fetchRankings();
 
-      <p>(Les résultats seront affichés ici automatiquement.)</p>
-    </div>
+        // Rafraîchir les matchs et le classement toutes les 30 secondes
+        setInterval(fetchMatches, 30000);  // Rafraîchit les matchs toutes les 30 secondes
+        setInterval(fetchRankings, 30000);  // Rafraîchit le classement toutes les 30 secondes
+    </script>
 
-    <div id="classement" class="section">
-      <h2>Classement</h2>
-      <div id="classement-table">
-        <!-- Classement sera injecté ici -->
-        <p>Chargement du classement...</p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    async function chargerClassement() {
-      const url = 'https://docs.google.com/spreadsheets/d/e/TON_URL/pub?output=csv'; // À remplacer
-      const response = await fetch(url);
-      const text = await response.text();
-      const lignes = text.trim().split('\n').slice(1);
-      const classement = lignes.map(l => l.split(','));
-      
-      const table = document.createElement('table');
-      table.innerHTML = `
-        <tr><th>Équipe</th><th>Points</th></tr>
-        ${classement.map(c => `<tr><td>${c[0]}</td><td>${c[1]}</td></tr>`).join('')}
-      `;
-      const div = document.getElementById('classement-table');
-      div.innerHTML = '';
-      div.appendChild(table);
-    }
-
-    // Charger le classement au démarrage
-    chargerClassement();
-  </script>
 </body>
+
 </html>
