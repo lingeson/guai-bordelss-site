@@ -65,6 +65,17 @@
     .sport-button:hover {
       background-color: #bdc3c7;
     }
+    .active-sport {
+      background-color: #3498db;
+      color: white;
+    }
+    .results-container {
+      display: flex;
+      justify-content: space-between;
+    }
+    .results-column {
+      width: 48%;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
@@ -101,12 +112,12 @@
     <div id="sports" class="section">
       <h2>Résultats des matchs</h2>
       <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchMatches('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" id="rugby-btn" onclick="fetchMatches('Rugby', 'rugby-btn')">🏈 Rugby</button>
+        <button class="sport-button" id="football-btn" onclick="fetchMatches('Football', 'football-btn')">⚽ Football</button>
+        <button class="sport-button" id="handball-btn" onclick="fetchMatches('Handball', 'handball-btn')">🏀 Handball</button>
+        <button class="sport-button" id="natation-btn" onclick="fetchMatches('Natation', 'natation-btn')">🏊 Natation</button>
+        <button class="sport-button" id="athletisme-btn" onclick="fetchMatches('Athlétisme', 'athletisme-btn')">🏃 Athlétisme</button>
+        <button class="sport-button" id="badminton-btn" onclick="fetchMatches('Badminton', 'badminton-btn')">🏸 Badminton</button>
       </div>
       <div id="matches">
         <!-- Les résultats des matchs seront affichés ici -->
@@ -116,12 +127,12 @@
     <div id="classement" class="section">
       <h2>Classement</h2>
       <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchRanking('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" id="rugby-classement-btn" onclick="fetchRanking('Rugby', 'rugby-classement-btn')">🏈 Rugby</button>
+        <button class="sport-button" id="football-classement-btn" onclick="fetchRanking('Football', 'football-classement-btn')">⚽ Football</button>
+        <button class="sport-button" id="handball-classement-btn" onclick="fetchRanking('Handball', 'handball-classement-btn')">🏀 Handball</button>
+        <button class="sport-button" id="natation-classement-btn" onclick="fetchRanking('Natation', 'natation-classement-btn')">🏊 Natation</button>
+        <button class="sport-button" id="athletisme-classement-btn" onclick="fetchRanking('Athlétisme', 'athletisme-classement-btn')">🏃 Athlétisme</button>
+        <button class="sport-button" id="badminton-classement-btn" onclick="fetchRanking('Badminton', 'badminton-classement-btn')">🏸 Badminton</button>
       </div>
       <div id="classement-table">
         <!-- Classement sera injecté ici -->
@@ -137,8 +148,16 @@
       document.getElementById(id).classList.add('active');
     }
 
+    // Fonction pour gérer la sélection du sport et ajouter la classe active à l'icône
+    function setActiveSportButton(sportButtonId) {
+      // Supprimer la classe active des autres boutons
+      document.querySelectorAll('.sport-button').forEach(button => button.classList.remove('active-sport'));
+      // Ajouter la classe active au bouton sélectionné
+      document.getElementById(sportButtonId).classList.add('active-sport');
+    }
+
     // Fonction pour récupérer et afficher les résultats des matchs par sport
-    async function fetchMatches(sport) {
+    async function fetchMatches(sport, sportButtonId) {
       const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
       const response = await fetch(url);
       const text = await response.text();
@@ -148,80 +167,126 @@
       const matchesContainer = document.getElementById('matches');
       matchesContainer.innerHTML = ''; // Réinitialiser les résultats avant d'ajouter les nouveaux matchs
 
+      // Filtrage par sport
       const filteredMatches = matchList.filter(match => match[0] === sport);
 
-      filteredMatches.forEach(match => {
-        const teamA = match[1];
-        const teamB = match[2];
-        const scoreA = match[3];
-        const scoreB = match[4];
-        const date = match[5];
+      const pouleA = filteredMatches.filter(match => match[6] === 'A'); // Filtrer Poule A
+      const pouleB = filteredMatches.filter(match => match[6] === 'B'); // Filtrer Poule B
 
-        const matchHTML = `
-          <div class="match">
-            <h3>${sport} - ${date}</h3>
-            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+      const resultsHTML = `
+        <div class="results-container">
+          <div class="results-column">
+            <h3>Poule A</h3>
+            ${pouleA.map(match => {
+              const teamA = match[1];
+              const teamB = match[2];
+              const scoreA = match[3];
+              const scoreB = match[4];
+              const date = match[5];
+              return `
+                <div class="match">
+                  <h4>${date}</h4>
+                  <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+                </div>
+              `;
+            }).join('')}
           </div>
-        `;
-        matchesContainer.innerHTML += matchHTML;
-      });
+          <div class="results-column">
+            <h3>Poule B</h3>
+            ${pouleB.map(match => {
+              const teamA = match[1];
+              const teamB = match[2];
+              const scoreA = match[3];
+              const scoreB = match[4];
+              const date = match[5];
+              return `
+                <div class="match">
+                  <h4>${date}</h4>
+                  <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+      matchesContainer.innerHTML = resultsHTML;
+
+      // Changer l'icône active
+      setActiveSportButton(sportButtonId);
     }
 
     // Fonction pour récupérer et afficher le classement par sport
-    async function fetchRanking(sport) {
+    async function fetchRanking(sport, sportButtonId) {
       const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
       const response = await fetch(url);
       const text = await response.text();
       const lines = text.trim().split('\n').slice(1); // Ignorer l'en-tête
       const ranking = lines.map(line => line.split(','));
 
+      // Filtrage du classement par sport
       const filteredRanking = ranking.filter(r => r[0] === sport);
 
-      // Calcul des points
-      const points = {};
-      filteredRanking.forEach(match => {
-        const teamA = match[1];
-        const teamB = match[2];
-        const scoreA = parseInt(match[3]);
-        const scoreB = parseInt(match[4]);
+      // Séparer en Poule A et Poule B
+      const pouleA = filteredRanking.filter(r => r[6] === 'A');
+      const pouleB = filteredRanking.filter(r => r[6] === 'B');
 
-        // Initialisation des équipes si pas encore dans l'objet
-        if (!points[teamA]) points[teamA] = 0;
-        if (!points[teamB]) points[teamB] = 0;
-
-        // Attribution des points en fonction du score
-        if (scoreA > scoreB) {
-          points[teamA] += 3; // Victoire de A
-          points[teamB] += 1; // Défaite de B
-        } else if (scoreA < scoreB) {
-          points[teamA] += 1; // Défaite de A
-          points[teamB] += 3; // Victoire de B
-        } else {
-          points[teamA] += 2; // Match nul
-          points[teamB] += 2; // Match nul
-        }
-      });
-
-      // Trier les équipes par nombre de points
-      const sortedTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
-
-      // Création du tableau de classement
-      const table = document.createElement('table');
-      table.innerHTML = `
-        <tr><th>Équipe</th><th>Points</th></tr>
-        ${sortedTeams.map(([team, score]) => `<tr><td>${team}</td><td>${score}</td></tr>`).join('')}
+      const classementHTML = `
+        <div class="results-container">
+          <div class="results-column">
+            <h3>Poule A</h3>
+            <table>
+              <tr><th>Équipe</th><th>Points</th><th>Matches</th><th>Buts Inscrits</th><th>Buts Pris</th><th>Différence de Buts</th></tr>
+              ${pouleA.map(r => {
+                const team = r[1];
+                const points = r[7];
+                const matches = r[8];
+                const scored = r[9];
+                const conceded = r[10];
+                const diff = r[11];
+                return `
+                  <tr>
+                    <td>${team}</td>
+                    <td>${points}</td>
+                    <td>${matches}</td>
+                    <td>${scored}</td>
+                    <td>${conceded}</td>
+                    <td>${diff}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </table>
+          </div>
+          <div class="results-column">
+            <h3>Poule B</h3>
+            <table>
+              <tr><th>Équipe</th><th>Points</th><th>Matches</th><th>Buts Inscrits</th><th>Buts Pris</th><th>Différence de Buts</th></tr>
+              ${pouleB.map(r => {
+                const team = r[1];
+                const points = r[7];
+                const matches = r[8];
+                const scored = r[9];
+                const conceded = r[10];
+                const diff = r[11];
+                return `
+                  <tr>
+                    <td>${team}</td>
+                    <td>${points}</td>
+                    <td>${matches}</td>
+                    <td>${scored}</td>
+                    <td>${conceded}</td>
+                    <td>${diff}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </table>
+          </div>
+        </div>
       `;
+      document.getElementById('classement-table').innerHTML = classementHTML;
 
-      const div = document.getElementById('classement-table');
-      div.innerHTML = ''; // Réinitialiser la section avant d'ajouter le tableau
-      div.appendChild(table);
+      // Changer l'icône active
+      setActiveSportButton(sportButtonId);
     }
-
-    // Charger les données au démarrage
-    fetchMatches('Rugby');  // Par défaut, afficher les résultats du Rugby
-    fetchRanking('Rugby');  // Par défaut, afficher le classement du Rugby
-
   </script>
-
 </body>
 </html>
