@@ -65,6 +65,19 @@
     .sport-button:hover {
       background-color: #bdc3c7;
     }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #34495e;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -88,12 +101,12 @@
     <div id="sports" class="section">
       <h2>Résultats des matchs</h2>
       <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchMatches('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="displayResults('Rugby')">🏈 Rugby</button>
+        <button class="sport-button" onclick="displayResults('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="displayResults('Handball')">🏀 Handball</button>
+        <button class="sport-button" onclick="displayResults('Natation')">🏊 Natation</button>
+        <button class="sport-button" onclick="displayResults('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="displayResults('Badminton')">🏸 Badminton</button>
       </div>
       <div id="matches">
         <!-- Les résultats des matchs seront affichés ici -->
@@ -103,12 +116,12 @@
     <div id="classement" class="section">
       <h2>Classement</h2>
       <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchRanking('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="displayRanking('Rugby')">🏈 Rugby</button>
+        <button class="sport-button" onclick="displayRanking('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="displayRanking('Handball')">🏀 Handball</button>
+        <button class="sport-button" onclick="displayRanking('Natation')">🏊 Natation</button>
+        <button class="sport-button" onclick="displayRanking('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="displayRanking('Badminton')">🏸 Badminton</button>
       </div>
       <div id="classement-table">
         <!-- Classement sera injecté ici -->
@@ -118,65 +131,90 @@
   </div>
 
   <script>
-    // Fonction pour afficher la bonne section
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
+    let data = {};  // Variable pour stocker toutes les données
 
-    // Fonction pour récupérer et afficher les résultats des matchs par sport
-    async function fetchMatches(sport) {
+    // Charger les données une fois au démarrage
+    async function loadData() {
       const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
       const response = await fetch(url);
       const text = await response.text();
-      const matches = text.trim().split('\n').slice(1); // Ignorer l'en-tête
-      const matchList = matches.map(match => match.split(','));
+      const rows = text.trim().split('\n').slice(1);  // Ignorer la première ligne (entêtes)
+      const matches = rows.map(row => row.split(','));
 
+      // Organiser les résultats par sport
+      data = matches.reduce((acc, match) => {
+        const sport = match[0];
+        if (!acc[sport]) acc[sport] = [];
+        acc[sport].push({
+          teamA: match[1],
+          teamB: match[2],
+          scoreA: parseInt(match[3]),
+          scoreB: parseInt(match[4]),
+          date: match[5],
+        });
+        return acc;
+      }, {});
+    }
+
+    // Fonction pour afficher les résultats d'un sport
+    function displayResults(sport) {
+      const matches = data[sport] || [];
       const matchesContainer = document.getElementById('matches');
-      matchesContainer.innerHTML = ''; // Réinitialiser les résultats avant d'ajouter les nouveaux matchs
+      matchesContainer.innerHTML = '';  // Réinitialiser avant d'afficher les nouveaux résultats
 
-      const filteredMatches = matchList.filter(match => match[0] === sport);
-
-      filteredMatches.forEach(match => {
-        const teamA = match[1];
-        const teamB = match[2];
-        const scoreA = match[3];
-        const scoreB = match[4];
-        const date = match[5];
-
+      matches.forEach(match => {
         const matchHTML = `
           <div class="match">
-            <h3>${sport} - ${date}</h3>
-            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+            <h3>${sport} - ${match.date}</h3>
+            <p>${match.teamA} ${match.scoreA} - ${match.scoreB} ${match.teamB}</p>
           </div>
         `;
         matchesContainer.innerHTML += matchHTML;
       });
     }
 
-    // Fonction pour récupérer et afficher le classement par sport
-    async function fetchRanking(sport) {
-      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
-      const response = await fetch(url);
-      const text = await response.text();
-      const lines = text.trim().split('\n').slice(1); // Ignorer l'en-tête
-      const ranking = lines.map(line => line.split(','));
+    // Fonction pour afficher le classement
+    function displayRanking(sport) {
+      const matches = data[sport] || [];
+      const ranking = {};
 
-      const filteredRanking = ranking.filter(r => r[0] === sport);
+      // Calculer les points de chaque équipe
+      matches.forEach(match => {
+        const { teamA, teamB, scoreA, scoreB } = match;
+        if (!ranking[teamA]) ranking[teamA] = 0;
+        if (!ranking[teamB]) ranking[teamB] = 0;
 
-      const table = document.createElement('table');
-      table.innerHTML = `
+        if (scoreA > scoreB) {
+          ranking[teamA] += 3; // Victoire de l'équipe A
+          ranking[teamB] += 1; // Défaite de l'équipe B
+        } else if (scoreA < scoreB) {
+          ranking[teamA] += 1; // Défaite de l'équipe A
+          ranking[teamB] += 3; // Victoire de l'équipe B
+        } else {
+          ranking[teamA] += 2; // Match nul
+          ranking[teamB] += 2; // Match nul
+        }
+      });
+
+      // Créer le tableau de classement
+      const rankingTable = document.createElement('table');
+      rankingTable.innerHTML = `
         <tr><th>Équipe</th><th>Points</th></tr>
-        ${filteredRanking.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+        ${Object.entries(ranking)
+          .map(([team, points]) => `<tr><td>${team}</td><td>${points}</td></tr>`)
+          .join('')}
       `;
       const div = document.getElementById('classement-table');
-      div.innerHTML = ''; // Réinitialiser la section avant d'ajouter le tableau
-      div.appendChild(table);
+      div.innerHTML = '';  // Réinitialiser avant d'ajouter le nouveau tableau
+      div.appendChild(rankingTable);
     }
 
-    // Charger les données au démarrage
-    fetchMatches('Rugby');  // Par défaut, afficher les résultats du Rugby
-    fetchRanking('Rugby');  // Par défaut, afficher le classement du Rugby
+    // Charger les données dès le départ
+    loadData();
+
+    // Afficher les résultats et classements par défaut
+    displayResults('Rugby');
+    displayRanking('Rugby');
 
   </script>
 
