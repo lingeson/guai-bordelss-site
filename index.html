@@ -2,168 +2,222 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GUAI BORDEL'SS 2025</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
+      background-color: #f4f4f4;
     }
     header {
-      background-color: #1e90ff;
+      background: #2c3e50;
       color: white;
-      padding: 1em;
+      padding: 1rem;
       text-align: center;
+    }
+    img.logo {
+      max-height: 80px;
     }
     nav {
-      background-color: #f0f0f0;
-      padding: 1em;
-      text-align: center;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: #34495e;
     }
     nav button {
-      margin: 0 0.5em;
-      padding: 0.5em 1em;
-      font-size: 1em;
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ecf0f1;
+      border: none;
+      border-radius: 5px;
       cursor: pointer;
     }
-    main {
-      padding: 1em;
+    .content {
+      padding: 1rem;
     }
-    .sport-section {
-      margin-bottom: 2em;
+    .section {
+      display: none;
     }
-    .pools-container {
+    .active {
+      display: block;
+    }
+    @media (max-width: 600px) {
+      nav button {
+        width: 90%;
+      }
+    }
+    .sports-buttons {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       flex-wrap: wrap;
     }
-    .pool {
-      width: 48%;
-      margin-bottom: 1em;
+    .sport-button {
+      margin: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border: none;
+      border-radius: 5px;
     }
-    .pool h3 {
-      text-align: center;
-      background-color: #e0e0e0;
-      padding: 0.5em;
+    .sport-button:hover {
+      background-color: #bdc3c7;
     }
-    .pool table {
+    table {
       width: 100%;
       border-collapse: collapse;
     }
-    .pool table, .pool th, .pool td {
-      border: 1px solid #ccc;
-    }
-    .pool th, .pool td {
-      padding: 0.5em;
+    th, td {
+      padding: 8px;
       text-align: center;
+      border: 1px solid #ddd;
     }
-    .results-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1em;
+    th {
+      background-color: #34495e;
+      color: white;
     }
-    .results-table th, .results-table td {
-      border: 1px solid #ccc;
-      padding: 0.5em;
-      text-align: center;
+    .poule-container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
     }
-    .emoji-sports {
-      font-size: 2em;
-      text-align: center;
+    .poule {
+      width: 45%;
+      margin-bottom: 2rem;
+    }
+    .results-section {
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
   <header>
+    <img src="logo.png" alt="Logo" class="logo" />
     <h1>GUAI BORDEL'SS 2025</h1>
   </header>
-  <nav>
-    <button onclick="showSection('results')">Résultats des matchs</button>
-    <button onclick="showSection('standings')">Classement</button>
-  </nav>
-  <main>
-    <section id="results-section">
-      <!-- Sports avec poules -->
-      <div class="sport-section">
-        <h2>Volley M</h2>
-        <div class="pools-container">
-          <div class="pool">
-            <h3>Poule A</h3>
-            <table>
-              <tr><th>Équipe</th></tr>
-              <tr><td>Équipe A1</td></tr>
-              <tr><td>Équipe A2</td></tr>
-              <tr><td>Équipe A3</td></tr>
-              <tr><td>Équipe A4</td></tr>
-            </table>
-            <table class="results-table">
-              <tr>
-                <th>Jour</th>
-                <th>Heure</th>
-                <th>Terrain</th>
-                <th>Score A</th>
-                <th>Score B</th>
-              </tr>
-              <tr>
-                <td>01/06</td>
-                <td>10:00</td>
-                <td>1</td>
-                <td>2</td>
-                <td>1</td>
-              </tr>
-              <!-- Autres résultats -->
-            </table>
-          </div>
-          <div class="pool">
-            <h3>Poule B</h3>
-            <table>
-              <tr><th>Équipe</th></tr>
-              <tr><td>Équipe B1</td></tr>
-              <tr><td>Équipe B2</td></tr>
-              <tr><td>Équipe B3</td></tr>
-              <tr><td>Équipe B4</td></tr>
-            </table>
-            <table class="results-table">
-              <tr>
-                <th>Jour</th>
-                <th>Heure</th>
-                <th>Terrain</th>
-                <th>Score A</th>
-                <th>Score B</th>
-              </tr>
-              <tr>
-                <td>01/06</td>
-                <td>11:00</td>
-                <td>2</td>
-                <td>0</td>
-                <td>3</td>
-              </tr>
-              <!-- Autres résultats -->
-            </table>
-          </div>
-        </div>
-      </div>
-      <!-- Répéter la structure ci-dessus pour Foot M, Basket M, Handball, Rugby, Basket F, Foot F, Volley F -->
 
-      <!-- Sports sans poules -->
-      <div class="sport-section">
-        <h2>Autres sports</h2>
-        <div class="emoji-sports">
-          🎾 🏸 🏓 🧗 🏃 🏊
-        </div>
+  <nav>
+    <button onclick="showSection('accueil')">Accueil</button>
+    <button onclick="showSection('sports')">Résultats des matchs</button>
+    <button onclick="showSection('classement')">Classement</button>
+  </nav>
+
+  <div class="content">
+    <div id="accueil" class="section active">
+      <h2>Bienvenue !</h2>
+      <p>Retrouvez ici toutes les infos des GUAI BORDEL'SS 2025.</p>
+    </div>
+
+    <div id="sports" class="section">
+      <h2>Résultats des matchs</h2>
+      <div class="sports-buttons">
+        <button class="sport-button" onclick="fetchSport('Volley M')">🏐 Volley M</button>
+        <button class="sport-button" onclick="fetchSport('Foot M')">⚽ Foot M</button>
+        <button class="sport-button" onclick="fetchSport('Basket M')">🏀 Basket M</button>
+        <button class="sport-button" onclick="fetchSport('Handball')">🏉 Handball</button>
+        <button class="sport-button" onclick="fetchSport('Rugby')">🏉 Rugby</button>
+        <button class="sport-button" onclick="fetchSport('Basket F')">🏀 Basket F</button>
+        <button class="sport-button" onclick="fetchSport('Foot F')">⚽ Foot F</button>
+        <button class="sport-button" onclick="fetchSport('Volley F')">🏐 Volley F</button>
+
+        <!-- Sports sans poules -->
+        <button class="sport-button" onclick="fetchSimpleSport('Tennis')">🎾 Tennis</button>
+        <button class="sport-button" onclick="fetchSimpleSport('Badminton')">🎏 Badminton</button>
+        <button class="sport-button" onclick="fetchSimpleSport('Ping-pong')">🏓 Ping-pong</button>
+        <button class="sport-button" onclick="fetchSimpleSport('Escalade')">🧻 Escalade</button>
+        <button class="sport-button" onclick="fetchSimpleSport('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchSimpleSport('Natation')">🏊 Natation</button>
       </div>
-    </section>
-    <section id="standings-section" style="display: none;">
+      <div id="matches"></div>
+    </div>
+
+    <div id="classement" class="section">
       <h2>Classement</h2>
-      <!-- Contenu du classement -->
-    </section>
-  </main>
+      <div id="classement-table">
+        <p>Chargement du classement...</p>
+      </div>
+    </div>
+  </div>
+
   <script>
-    function showSection(section) {
-      document.getElementById('results-section').style.display = (section === 'results') ? 'block' : 'none';
-      document.getElementById('standings-section').style.display = (section === 'standings') ? 'block' : 'none';
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    async function fetchSport(sport) {
+      const matchesContainer = document.getElementById('matches');
+      matchesContainer.innerHTML = `<h3>${sport}</h3>`;
+      // TODO: Ajouter fetch de Google Sheets avec poules et résultats
+    }
+
+    async function fetchSimpleSport(sport) {
+      const matchesContainer = document.getElementById('matches');
+      matchesContainer.innerHTML = `<h3>${sport}</h3><p>Les résultats seront affichés ici prochainement.</p>`;
     }
   </script>
+<script>
+  async function fetchSheetData(sheetUrl) {
+    const response = await fetch(sheetUrl);
+    const text = await response.text();
+    const rows = text.trim().split('\n').map(row => row.split(','));
+    return rows;
+  }
+
+  function displayMatches(data, sport) {
+    const matchesContainer = document.getElementById('matches');
+    matchesContainer.innerHTML = '';
+
+    const headers = data[0];
+    const sportIndex = headers.indexOf('Sport');
+    const jourIndex = headers.indexOf('Jour');
+    const heureIndex = headers.indexOf('Heure');
+    const terrainIndex = headers.indexOf('Terrain');
+    const equipeAIndex = headers.indexOf('Équipe A');
+    const equipeBIndex = headers.indexOf('Équipe B');
+    const scoreAIndex = headers.indexOf('Score A');
+    const scoreBIndex = headers.indexOf('Score B');
+
+    const filteredData = data.slice(1).filter(row => row[sportIndex] === sport);
+
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    ['Jour', 'Heure', 'Terrain', 'Équipe A', 'Score A', 'Score B', 'Équipe B'].forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    filteredData.forEach(row => {
+      const tr = document.createElement('tr');
+      [jourIndex, heureIndex, terrainIndex, equipeAIndex, scoreAIndex, scoreBIndex, equipeBIndex].forEach(index => {
+        const td = document.createElement('td');
+        td.textContent = row[index];
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+    matchesContainer.appendChild(table);
+  }
+
+  // Exemple d'utilisation :
+  // Remplace 'YOUR_PUBLISHED_CSV_URL' par l'URL de la feuille publiée
+  const sheetUrl = 'YOUR_PUBLISHED_CSV_URL';
+
+  // Appelle cette fonction avec le nom du sport souhaité, par exemple 'Rugby'
+  fetchSheetData(sheetUrl).then(data => displayMatches(data, 'Rugby'));
+</script>
+
 </body>
 </html>
