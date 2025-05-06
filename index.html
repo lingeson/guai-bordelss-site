@@ -115,121 +115,123 @@
   </div>
 
   <script>
-    const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
-    const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
+  const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
+  const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
 
-    const sports = [
-      { name: 'Handball', emoji: '🤾' },
-      { name: 'Rugby', emoji: '🏈' },
-      { name: 'Foot M', emoji: '⚽' },
-      { name: 'Foot F', emoji: '⚽' },
-      { name: 'Volley M', emoji: '🏐' },
-      { name: 'Volley F', emoji: '🏐' },
-      { name: 'Basket M', emoji: '🏀' },
-      { name: 'Basket F', emoji: '🏀' },
-      { name: 'Tennis', emoji: '🎾' },
-      { name: 'Badminton', emoji: '🏸' },
-      { name: 'Ping-pong', emoji: '🏓' },
-      { name: 'Athlétisme', emoji: '🏃' },
-      { name: 'Natation', emoji: '🏊' },
-      { name: 'Escalade', emoji: '🧗' }
-    ];
+  const sports = [
+    { name: 'Handball', emoji: '🤾' },
+    { name: 'Rugby', emoji: '🏈' },
+    { name: 'Foot M', emoji: '⚽' },
+    { name: 'Foot F', emoji: '⚽' },
+    { name: 'Volley M', emoji: '🏐' },
+    { name: 'Volley F', emoji: '🏐' },
+    { name: 'Basket M', emoji: '🏀' },
+    { name: 'Basket F', emoji: '🏀' },
+    { name: 'Tennis', emoji: '🎾' },
+    { name: 'Badminton', emoji: '🏸' },
+    { name: 'Ping-pong', emoji: '🏓' },
+    { name: 'Athlétisme', emoji: '🏃' },
+    { name: 'Natation', emoji: '🏊' },
+    { name: 'Escalade', emoji: '🧗' }
+  ];
 
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-    }
-
-    function createSportButtons() {
-      const matchesContainer = document.getElementById('sports-buttons-matches');
-      const rankingContainer = document.getElementById('sports-buttons-ranking');
-
-      sports.forEach(sport => {
-        const matchButton = document.createElement('button');
-        matchButton.className = 'sport-button';
-        matchButton.innerText = `${sport.emoji} ${sport.name}`;
-        matchButton.onclick = () => fetchMatches(sport.name);
-        matchesContainer.appendChild(matchButton);
-
-        const rankingButton = document.createElement('button');
-        rankingButton.className = 'sport-button';
-        rankingButton.innerText = `${sport.emoji} ${sport.name}`;
-        rankingButton.onclick = () => fetchRanking(sport.name);
-        rankingContainer.appendChild(rankingButton);
-      });
-    }
-
-    async function fetchMatches(sport) {
-  const csvUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv`;
-  const container = document.getElementById('matches');
-  container.innerHTML = '<p>Chargement...</p>';
-
-  try {
-    const response = await fetch(csvUrl);
-    const csvText = await response.text();
-
-    const rows = csvText.split('\n').map(row => row.split(','));
-    
-    if (rows.length <= 1) {
-      container.innerHTML = '<p>Aucun match trouvé.</p>';
-      return;
-    }
-
-    const matches = rows.slice(1).map(row => {
-      const [teamA, teamB, scoreA, scoreB, date] = row;
-      return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
-    }).join('');
-
-    if (matches === '') {
-      container.innerHTML = '<p>Aucun match trouvé.</p>';
-    } else {
-      container.innerHTML = matches;
-    }
-  } catch (err) {
-    container.innerHTML = '<p>Erreur de chargement.</p>';
-    console.error('Erreur de l\'API:', err);
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
   }
 
+  function createSportButtons() {
+    const matchesContainer = document.getElementById('sports-buttons-matches');
+    const rankingContainer = document.getElementById('sports-buttons-ranking');
 
-    async function fetchRanking(sport) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-      const container = document.getElementById('classement-table');
-      container.innerHTML = '<p>Chargement...</p>';
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-        const rows = data.values;
+    sports.forEach(sport => {
+      const matchButton = document.createElement('button');
+      matchButton.className = 'sport-button';
+      matchButton.innerText = `${sport.emoji} ${sport.name}`;
+      matchButton.onclick = () => fetchMatches(sport.name);
+      matchesContainer.appendChild(matchButton);
 
-        if (!rows || rows.length < 2) {
-          container.innerHTML = '<p>Aucun classement disponible.</p>';
-          return;
-        }
+      const rankingButton = document.createElement('button');
+      rankingButton.className = 'sport-button';
+      rankingButton.innerText = `${sport.emoji} ${sport.name}`;
+      rankingButton.onclick = () => fetchRanking(sport.name);
+      rankingContainer.appendChild(rankingButton);
+    });
+  }
 
-        const scores = {};
-        rows.slice(1).forEach(row => {
-          const teamA = row[0], teamB = row[1];
-          const scoreA = parseInt(row[2]), scoreB = parseInt(row[3]);
-          if (!teamA || !teamB || isNaN(scoreA) || isNaN(scoreB)) return;
-          scores[teamA] = (scores[teamA] || 0) + (scoreA > scoreB ? 3 : scoreA === scoreB ? 1 : 0);
-          scores[teamB] = (scores[teamB] || 0) + (scoreB > scoreA ? 3 : scoreB === scoreA ? 1 : 0);
-        });
+  async function fetchMatches(sport) {
+    const csvUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv`;
+    const container = document.getElementById('matches');
+    container.innerHTML = '<p>Chargement...</p>';
 
-        const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-        const table = `
-          <table>
-            <tr><th>Équipe</th><th>Points</th></tr>
-            ${sorted.map(([team, pts]) => `<tr><td>${team}</td><td>${pts}</td></tr>`).join('')}
-          </table>
-        `;
-        container.innerHTML = table;
-      } catch (err) {
-        container.innerHTML = '<p>Erreur de chargement.</p>';
-        console.error(err);
+    try {
+      const response = await fetch(csvUrl);
+      const csvText = await response.text();
+
+      const rows = csvText.split('\n').map(row => row.split(','));
+      
+      if (rows.length <= 1) {
+        container.innerHTML = '<p>Aucun match trouvé.</p>';
+        return;
       }
-    }
 
-    // Initialize sport buttons on page load
-    document.addEventListener('DOMContentLoaded', createSportButtons);
-  </script>
+      const matches = rows.slice(1).map(row => {
+        const [teamA, teamB, scoreA, scoreB, date] = row;
+        return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
+      }).join('');
+
+      if (matches === '') {
+        container.innerHTML = '<p>Aucun match trouvé.</p>';
+      } else {
+        container.innerHTML = matches;
+      }
+    } catch (err) {
+      container.innerHTML = '<p>Erreur de chargement.</p>';
+      console.error('Erreur de l\'API:', err);
+    }
+  }
+
+  async function fetchRanking(sport) {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
+    const container = document.getElementById('classement-table');
+    container.innerHTML = '<p>Chargement...</p>';
+    
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const rows = data.values;
+
+      if (!rows || rows.length < 2) {
+        container.innerHTML = '<p>Aucun classement disponible.</p>';
+        return;
+      }
+
+      const scores = {};
+      rows.slice(1).forEach(row => {
+        const teamA = row[0], teamB = row[1];
+        const scoreA = parseInt(row[2]), scoreB = parseInt(row[3]);
+        if (!teamA || !teamB || isNaN(scoreA) || isNaN(scoreB)) return;
+        scores[teamA] = (scores[teamA] || 0) + (scoreA > scoreB ? 3 : scoreA === scoreB ? 1 : 0);
+        scores[teamB] = (scores[teamB] || 0) + (scoreB > scoreA ? 3 : scoreB === scoreA ? 1 : 0);
+      });
+
+      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const table = `
+        <table>
+          <tr><th>Équipe</th><th>Points</th></tr>
+          ${sorted.map(([team, pts]) => `<tr><td>${team}</td><td>${pts}</td></tr>`).join('')}
+        </table>
+      `;
+      container.innerHTML = table;
+    } catch (err) {
+      container.innerHTML = '<p>Erreur de chargement.</p>';
+      console.error(err);
+    }
+  }
+
+  // Initialize sport buttons on page load
+  document.addEventListener('DOMContentLoaded', createSportButtons);
+</script>
+
 </body>
 </html>
