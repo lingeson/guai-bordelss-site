@@ -17,6 +17,10 @@
       padding: 1rem;
       text-align: center;
     }
+    header img {
+      width: 100px; /* Taille de ton logo */
+      margin-bottom: 10px;
+    }
     nav {
       display: flex;
       justify-content: center;
@@ -75,6 +79,7 @@
 </head>
 <body>
   <header>
+    <img src="ton_logo_url" alt="Logo GUAI BORDEL'SS" /> <!-- Remplace par ton logo -->
     <h1>GUAI BORDEL'SS 2025</h1>
   </header>
 
@@ -154,10 +159,10 @@
         .then(csv => {
           const rows = csv.split("\n").slice(1); // Suppression de l'en-tête
           const table = `<table>
-            <tr><th>Équipe 1</th><th>Score</th><th>Équipe 2</th></tr>
+            <tr><th>Jour</th><th>Heure</th><th>Terrain</th><th>Équipe A</th><th>Équipe B</th><th>Score A</th><th>Score B</th><th>Type de matchs</th></tr>
             ${rows.map(row => {
               const cols = row.split(",");
-              return `<tr><td>${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td></tr>`;
+              return `<tr><td>${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td><td>${cols[3]}</td><td>${cols[4]}</td><td>${cols[5]}</td><td>${cols[6]}</td><td>${cols[7]}</td></tr>`;
             }).join("")}
           </table>`;
           document.getElementById('matches').innerHTML = table;
