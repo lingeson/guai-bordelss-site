@@ -68,6 +68,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 20px;
     }
     th, td {
       padding: 8px;
@@ -101,32 +102,41 @@
     <div id="sports" class="section">
       <h2>Résultats des matchs</h2>
       <div class="sports-buttons">
+        <button class="sport-button" onclick="fetchMatches('Handball')">🤾 Handball</button>
         <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchMatches('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Foot M</button>
+        <button class="sport-button" onclick="fetchMatches('Basket M')">🏀 Basket M</button>
+        <button class="sport-button" onclick="fetchMatches('Basket F')">🏀 Basket F</button>
+        <button class="sport-button" onclick="fetchMatches('Volley M')">🏐 Volley M</button>
+        <button class="sport-button" onclick="fetchMatches('Volley F')">🏐 Volley F</button>
         <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="fetchMatches('Tennis')">🎾 Tennis</button>
+        <button class="sport-button" onclick="fetchMatches('Ping-pong')">🏓 Ping-pong</button>
+        <button class="sport-button" onclick="fetchMatches('Escalade')">🧗 Escalade</button>
+        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
       </div>
-      <div id="matches">
-        <!-- Les résultats des matchs seront affichés ici -->
-      </div>
+      <div id="matches"></div>
     </div>
 
     <div id="classement" class="section">
       <h2>Classement</h2>
       <div class="sports-buttons">
+        <button class="sport-button" onclick="fetchRanking('Handball')">🤾 Handball</button>
         <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchRanking('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Foot M</button>
+        <button class="sport-button" onclick="fetchRanking('Basket M')">🏀 Basket M</button>
+        <button class="sport-button" onclick="fetchRanking('Basket F')">🏀 Basket F</button>
+        <button class="sport-button" onclick="fetchRanking('Volley M')">🏐 Volley M</button>
+        <button class="sport-button" onclick="fetchRanking('Volley F')">🏐 Volley F</button>
         <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="fetchRanking('Tennis')">🎾 Tennis</button>
+        <button class="sport-button" onclick="fetchRanking('Ping-pong')">🏓 Ping-pong</button>
+        <button class="sport-button" onclick="fetchRanking('Escalade')">🧗 Escalade</button>
+        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
       </div>
-      <div id="classement-table">
-        <!-- Classement sera injecté ici -->
-        <p>Chargement du classement...</p>
-      </div>
+      <div id="classement-table"></div>
     </div>
   </div>
 
@@ -144,31 +154,39 @@
       const response = await fetch(url);
       const data = await response.json();
       const rows = data.values;
-
-      const matchesContainer = document.getElementById('matches');
-      matchesContainer.innerHTML = '';
+      const container = document.getElementById('matches');
+      container.innerHTML = '';
 
       if (!rows || rows.length < 2) {
-        matchesContainer.innerHTML = '<p>Aucun match trouvé.</p>';
+        container.innerHTML = '<p>Aucun match trouvé.</p>';
         return;
       }
 
-      const dataRows = rows.slice(1);
-      dataRows.forEach(row => {
-        const teamA = row[0];
-        const teamB = row[1];
-        const scoreA = row[2];
-        const scoreB = row[3];
-        const date = row[4];
-
-        const matchHTML = `
-          <div class="match">
-            <h3>${sport} - ${date}</h3>
-            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
-          </div>
-        `;
-        matchesContainer.innerHTML += matchHTML;
+      const table = document.createElement('table');
+      const headers = rows[0];
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headerRow.appendChild(th);
       });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      rows.slice(1).forEach(row => {
+        const tr = document.createElement('tr');
+        headers.forEach((_, i) => {
+          const td = document.createElement('td');
+          td.textContent = row[i] || '';
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
     }
 
     async function fetchRanking(sport) {
@@ -176,12 +194,11 @@
       const response = await fetch(url);
       const data = await response.json();
       const rows = data.values;
-
-      const classementDiv = document.getElementById('classement-table');
-      classementDiv.innerHTML = '';
+      const container = document.getElementById('classement-table');
+      container.innerHTML = '';
 
       if (!rows || rows.length < 2) {
-        classementDiv.innerHTML = '<p>Aucun classement disponible.</p>';
+        container.innerHTML = '<p>Aucun classement disponible.</p>';
         return;
       }
 
@@ -189,10 +206,12 @@
       const points = {};
 
       dataRows.forEach(row => {
-        const teamA = row[0];
-        const teamB = row[1];
-        const scoreA = parseInt(row[2]);
-        const scoreB = parseInt(row[3]);
+        const teamA = row[3];
+        const teamB = row[4];
+        const scoreA = parseInt(row[5]);
+        const scoreB = parseInt(row[6]);
+
+        if (!teamA || !teamB || isNaN(scoreA) || isNaN(scoreB)) return;
 
         if (!points[teamA]) points[teamA] = 0;
         if (!points[teamB]) points[teamB] = 0;
@@ -207,19 +226,17 @@
         }
       });
 
-      const sortedTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
+      const sorted = Object.entries(points).sort((a, b) => b[1] - a[1]);
 
       const table = document.createElement('table');
       table.innerHTML = `
-        <tr><th>Équipe</th><th>Points</th></tr>
-        ${sortedTeams.map(([team, score]) => `<tr><td>${team}</td><td>${score}</td></tr>`).join('')}
+        <thead><tr><th>Équipe</th><th>Points</th></tr></thead>
+        <tbody>
+          ${sorted.map(([team, pts]) => `<tr><td>${team}</td><td>${pts}</td></tr>`).join('')}
+        </tbody>
       `;
-      classementDiv.appendChild(table);
+      container.appendChild(table);
     }
-
-    // Chargement initial
-    fetchMatches('Rugby');
-    fetchRanking('Rugby');
   </script>
 </body>
 </html>
