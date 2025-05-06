@@ -167,9 +167,8 @@
     try {
       const response = await fetch(csvUrl);
       const csvText = await response.text();
-
       const rows = csvText.split('\n').map(row => row.split(','));
-      
+
       if (rows.length <= 1) {
         container.innerHTML = '<p>Aucun match trouvé.</p>';
         return;
@@ -180,11 +179,7 @@
         return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
       }).join('');
 
-      if (matches === '') {
-        container.innerHTML = '<p>Aucun match trouvé.</p>';
-      } else {
-        container.innerHTML = matches;
-      }
+      container.innerHTML = matches || '<p>Aucun match trouvé.</p>';
     } catch (err) {
       container.innerHTML = '<p>Erreur de chargement.</p>';
       console.error('Erreur de l\'API:', err);
@@ -195,7 +190,7 @@
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
     const container = document.getElementById('classement-table');
     container.innerHTML = '<p>Chargement...</p>';
-    
+
     try {
       const response = await fetch(url);
       const data = await response.json();
