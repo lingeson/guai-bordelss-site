@@ -154,31 +154,18 @@
     }
 
     async function fetchMatches(sport) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-  const container = document.getElementById('matches');
-  container.innerHTML = '<p>Chargement...</p>';
-  try {
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log(data); // Log des données pour débogage
-    const rows = data.values;
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
+      const container = document.getElementById('matches');
+      container.innerHTML = '<p>Chargement...</p>';
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        const rows = data.values;
 
-    if (!rows || rows.length < 2) {
-      container.innerHTML = '<p>Aucun match trouvé.</p>';
-      return;
-    }
-
-    const matches = rows.slice(1).map(row => {
-      const teamA = row[0] || '', teamB = row[1] || '', scoreA = row[2] || '', scoreB = row[3] || '', date = row[4] || '';
-      return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
-    }).join('');
-    container.innerHTML = matches;
-  } catch (err) {
-    container.innerHTML = '<p>Erreur de chargement.</p>';
-    console.error(err);
-  }
-}
-
+        if (!rows || rows.length < 2) {
+          container.innerHTML = '<p>Aucun match trouvé.</p>';
+          return;
+        }
 
         const matches = rows.slice(1).map(row => {
           const teamA = row[0] || '', teamB = row[1] || '', scoreA = row[2] || '', scoreB = row[3] || '', date = row[4] || '';
