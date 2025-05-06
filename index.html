@@ -119,7 +119,7 @@
   const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
 
   const sports = [
-    { name: 'Handball', emoji: '🤾' },
+    { name: 'Handball', emoji: '🤾', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv' },
     { name: 'Rugby', emoji: '🏈' },
     { name: 'Foot M', emoji: '⚽' },
     { name: 'Foot F', emoji: '⚽' },
@@ -160,38 +160,60 @@
   }
 
   async function fetchMatches(sport) {
-    const csvUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv`;
     const container = document.getElementById('matches');
     container.innerHTML = '<p>Chargement...</p>';
 
     try {
-      const response = await fetch(csvUrl);
-      const csvText = await response.text();
-      const rows = csvText.split('\n').map(row => row.split(','));
+      // Vérifier si la feuille existe
+      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
+      const metaResponse = await fetch(metaUrl);
+      const metaData = await metaResponse.json();
+      const availableSheets = metaData.sheets.map(s => s.properties.title);
 
-      if (rows.length <= 1) {
+      if (!availableSheets.includes(sport)) {
+        container.innerHTML = `<p>Erreur : l'onglet "${sport}" n'existe pas.</p>`;
+        return;
+      }
+
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const rows = data.values;
+
+      if (!rows || rows.length < 2) {
         container.innerHTML = '<p>Aucun match trouvé.</p>';
         return;
       }
 
       const matches = rows.slice(1).map(row => {
-        const [teamA, teamB, scoreA, scoreB, date] = row;
+        const teamA = row[0] || '', teamB = row[1] || '', scoreA = row[2] || '', scoreB = row[3] || '', date = row[4] || '';
         return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
       }).join('');
+      container.innerHTML = matches;
 
-      container.innerHTML = matches || '<p>Aucun match trouvé.</p>';
     } catch (err) {
       container.innerHTML = '<p>Erreur de chargement.</p>';
-      console.error('Erreur de l\'API:', err);
+      console.error(err);
     }
   }
 
   async function fetchRanking(sport) {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
     const container = document.getElementById('classement-table');
     container.innerHTML = '<p>Chargement...</p>';
 
     try {
+      // Vérifier si la feuille existe
+      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
+      const metaResponse = await fetch(metaUrl);
+      const metaData = await metaResponse.json();
+      const availableSheets = metaData.sheets.map(s => s.properties.title);
+
+      if (!availableSheets.includes(sport)) {
+        container.innerHTML = `<p>Erreur : l'onglet "${sport}" n'existe pas.</p>`;
+        return;
+      }
+
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
       const response = await fetch(url);
       const data = await response.json();
       const rows = data.values;
@@ -218,15 +240,15 @@
         </table>
       `;
       container.innerHTML = table;
+
     } catch (err) {
       container.innerHTML = '<p>Erreur de chargement.</p>';
       console.error(err);
     }
   }
 
-  // Initialize sport buttons on page load
+  // Initialise les boutons au chargement de la page
   document.addEventListener('DOMContentLoaded', createSportButtons);
 </script>
-
 </body>
 </html>
