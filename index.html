@@ -68,6 +68,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
     }
     th, td {
       padding: 8px;
@@ -80,15 +81,18 @@
     }
     .poule-container {
       display: flex;
-      justify-content: space-around;
+      justify-content: space-between;
       flex-wrap: wrap;
     }
     .poule {
-      width: 45%;
-      margin-bottom: 2rem;
+      width: 48%;
+      margin-bottom: 20px;
     }
-    .results-section {
-      margin-top: 1rem;
+    .match {
+      background-color: #ecf0f1;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
     }
   </style>
 </head>
@@ -112,112 +116,121 @@
 
     <div id="sports" class="section">
       <h2>Résultats des matchs</h2>
-      <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchSport('Volley M')">🏐 Volley M</button>
-        <button class="sport-button" onclick="fetchSport('Foot M')">⚽ Foot M</button>
-        <button class="sport-button" onclick="fetchSport('Basket M')">🏀 Basket M</button>
-        <button class="sport-button" onclick="fetchSport('Handball')">🏉 Handball</button>
-        <button class="sport-button" onclick="fetchSport('Rugby')">🏉 Rugby</button>
-        <button class="sport-button" onclick="fetchSport('Basket F')">🏀 Basket F</button>
-        <button class="sport-button" onclick="fetchSport('Foot F')">⚽ Foot F</button>
-        <button class="sport-button" onclick="fetchSport('Volley F')">🏐 Volley F</button>
-
-        <!-- Sports sans poules -->
-        <button class="sport-button" onclick="fetchSimpleSport('Tennis')">🎾 Tennis</button>
-        <button class="sport-button" onclick="fetchSimpleSport('Badminton')">🎏 Badminton</button>
-        <button class="sport-button" onclick="fetchSimpleSport('Ping-pong')">🏓 Ping-pong</button>
-        <button class="sport-button" onclick="fetchSimpleSport('Escalade')">🧻 Escalade</button>
-        <button class="sport-button" onclick="fetchSimpleSport('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchSimpleSport('Natation')">🏊 Natation</button>
+      <div class="sports-buttons" id="sports-buttons">
+        <!-- Boutons des sports seront ajoutés ici -->
       </div>
-      <div id="matches"></div>
+      <div id="matches">
+        <!-- Les résultats des matchs seront affichés ici -->
+      </div>
     </div>
 
     <div id="classement" class="section">
       <h2>Classement</h2>
+      <div class="sports-buttons" id="classement-buttons">
+        <!-- Boutons des sports seront ajoutés ici -->
+      </div>
       <div id="classement-table">
-        <p>Chargement du classement...</p>
+        <!-- Classement sera injecté ici -->
       </div>
     </div>
   </div>
 
   <script>
+    const sportsWithPoules = [
+      { name: 'Volley M', emoji: '🏐', gid: 'GID_VOLLEY_M' },
+      { name: 'Foot M', emoji: '⚽', gid: 'GID_FOOT_M' },
+      { name: 'Basket M', emoji: '🏀', gid: 'GID_BASKET_M' },
+      { name: 'Handball', emoji: '🤾', gid: 'GID_HANDBALL' },
+      { name: 'Rugby', emoji: '🏈', gid: '702928165' },
+      { name: 'Basket F', emoji: '🏀', gid: 'GID_BASKET_F' },
+      { name: 'Foot F', emoji: '⚽', gid: 'GID_FOOT_F' },
+      { name: 'Volley F', emoji: '🏐', gid: 'GID_VOLLEY_F' }
+    ];
+
+    const sportsSansPoules = [
+      { name: 'Tennis', emoji: '🎾', gid: 'GID_TENNIS' },
+      { name: 'Badminton', emoji: '🏸', gid: 'GID_BADMINTON' },
+      { name: 'Ping-pong', emoji: '🏓', gid: 'GID_PINGPONG' },
+      { name: 'Escalade', emoji: '🧗', gid: 'GID_ESCALADE' },
+      { name: 'Athlétisme', emoji: '🏃', gid: 'GID_ATHLETISME' },
+      { name: 'Natation', emoji: '🏊', gid: 'GID_NATATION' }
+    ];
+
+    const allSports = [...sportsWithPoules, ...sportsSansPoules];
+
+    const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
+
     function showSection(id) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
     }
 
-    async function fetchSport(sport) {
-      const matchesContainer = document.getElementById('matches');
-      matchesContainer.innerHTML = `<h3>${sport}</h3>`;
-      // TODO: Ajouter fetch de Google Sheets avec poules et résultats
-    }
+    function createSportButtons() {
+      const sportsButtonsContainer = document.getElementById('sports-buttons');
+      const classementButtonsContainer = document.getElementById('classement-buttons');
 
-    async function fetchSimpleSport(sport) {
-      const matchesContainer = document.getElementById('matches');
-      matchesContainer.innerHTML = `<h3>${sport}</h3><p>Les résultats seront affichés ici prochainement.</p>`;
-    }
-  </script>
-<script>
-  async function fetchSheetData(sheetUrl) {
-    const response = await fetch(sheetUrl);
-    const text = await response.text();
-    const rows = text.trim().split('\n').map(row => row.split(','));
-    return rows;
-  }
+      allSports.forEach(sport => {
+        const button = document.createElement('button');
+        button.className = 'sport-button';
+        button.innerText = `${sport.emoji} ${sport.name}`;
+        button.onclick = () => fetchMatches(sport);
+        sportsButtonsContainer.appendChild(button);
 
-  function displayMatches(data, sport) {
-    const matchesContainer = document.getElementById('matches');
-    matchesContainer.innerHTML = '';
-
-    const headers = data[0];
-    const sportIndex = headers.indexOf('Sport');
-    const jourIndex = headers.indexOf('Jour');
-    const heureIndex = headers.indexOf('Heure');
-    const terrainIndex = headers.indexOf('Terrain');
-    const equipeAIndex = headers.indexOf('Équipe A');
-    const equipeBIndex = headers.indexOf('Équipe B');
-    const scoreAIndex = headers.indexOf('Score A');
-    const scoreBIndex = headers.indexOf('Score B');
-
-    const filteredData = data.slice(1).filter(row => row[sportIndex] === sport);
-
-    const table = document.createElement('table');
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-
-    ['Jour', 'Heure', 'Terrain', 'Équipe A', 'Score A', 'Score B', 'Équipe B'].forEach(text => {
-      const th = document.createElement('th');
-      th.textContent = text;
-      headerRow.appendChild(th);
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-
-    const tbody = document.createElement('tbody');
-
-    filteredData.forEach(row => {
-      const tr = document.createElement('tr');
-      [jourIndex, heureIndex, terrainIndex, equipeAIndex, scoreAIndex, scoreBIndex, equipeBIndex].forEach(index => {
-        const td = document.createElement('td');
-        td.textContent = row[index];
-        tr.appendChild(td);
+        const classementButton = document.createElement('button');
+        classementButton.className = 'sport-button';
+        classementButton.innerText = `${sport.emoji} ${sport.name}`;
+        classementButton.onclick = () => fetchRanking(sport);
+        classementButtonsContainer.appendChild(classementButton);
       });
-      tbody.appendChild(tr);
-    });
+    }
 
-    table.appendChild(tbody);
-    matchesContainer.appendChild(table);
-  }
+    async function fetchMatches(sport) {
+      const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${sport.gid}`;
+      const response = await fetch(url);
+      const text = await response.text();
+      const lines = text.trim().split('\n');
+      const headers = lines[0].split(',');
+      const data = lines.slice(1).map(line => line.split(','));
 
-  // Exemple d'utilisation :
-  // Remplace 'YOUR_PUBLISHED_CSV_URL' par l'URL de la feuille publiée
-  const sheetUrl = 'YOUR_PUBLISHED_CSV_URL';
+      const matchesContainer = document.getElementById('matches');
+      matchesContainer.innerHTML = `<h3>${sport.emoji} ${sport.name}</h3>`;
 
-  // Appelle cette fonction avec le nom du sport souhaité, par exemple 'Rugby'
-  fetchSheetData(sheetUrl).then(data => displayMatches(data, 'Rugby'));
-</script>
+      if (sportsWithPoules.some(s => s.name === sport.name)) {
+        const poules = { 'A': [], 'B': [] };
 
-</body>
-</html>
+        data.forEach(row => {
+          const poule = row[0];
+          if (poules[poule]) {
+            poules[poule].push(row);
+          }
+        });
+
+        const pouleContainer = document.createElement('div');
+        pouleContainer.className = 'poule-container';
+
+        ['A', 'B'].forEach(pouleName => {
+          const pouleDiv = document.createElement('div');
+          pouleDiv.className = 'poule';
+          pouleDiv.innerHTML = `<h4>Poule ${pouleName}</h4>`;
+
+          const equipes = [...new Set(poules[pouleName].map(row => row[1]).concat(poules[pouleName].map(row => row[2])))];
+          const equipeList = document.createElement('ul');
+          equipes.forEach(equipe => {
+            const li = document.createElement('li');
+            li.innerText = equipe;
+            equipeList.appendChild(li);
+          });
+          pouleDiv.appendChild(equipeList);
+
+          const table = document.createElement('table');
+          const thead = document.createElement('thead');
+          thead.innerHTML = '<tr><th>Jour</th><th>Heure</th><th>Terrain</th><th>Équipe A</th><th>Score A</th><th>Score B</th><th>Équipe B</th></tr>';
+          table.appendChild(thead);
+          const tbody = document.createElement('tbody');
+
+          poules[pouleName].forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td><td>${row[1]}</td><td>${row[6]}</td><td>${row[7]}</td><td>${row[2]}</td>`;
+            tbody
+::contentReference[oaicite:26]{index=26}
+ 
