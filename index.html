@@ -68,6 +68,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 20px;
     }
     th, td {
       padding: 8px;
@@ -102,29 +103,37 @@
       <h2>Résultats des matchs</h2>
       <div class="sports-buttons">
         <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="fetchMatches('Foot M')">⚽ Foot M</button>
         <button class="sport-button" onclick="fetchMatches('Handball')">🤾 Handball</button>
         <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
         <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
         <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="fetchMatches('Volley M')">🏐 Volley M</button>
+        <button class="sport-button" onclick="fetchMatches('Basket M')">🏀 Basket M</button>
+        <button class="sport-button" onclick="fetchMatches('Basket F')">🏀 Basket F</button>
+        <button class="sport-button" onclick="fetchMatches('Foot F')">⚽ Foot F</button>
+        <button class="sport-button" onclick="fetchMatches('Volley F')">🏐 Volley F</button>
+        <button class="sport-button" onclick="fetchMatches('Tennis')">🎾 Tennis</button>
+        <button class="sport-button" onclick="fetchMatches('Ping-pong')">🏓 Ping-pong</button>
+        <button class="sport-button" onclick="fetchMatches('Escalade')">🧗 Escalade</button>
       </div>
-      <div id="matches">
-        <!-- Les résultats des matchs seront affichés ici -->
-      </div>
+      <div id="matches"></div>
     </div>
 
     <div id="classement" class="section">
       <h2>Classement</h2>
       <div class="sports-buttons">
         <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="fetchRanking('Foot M')">⚽ Foot M</button>
         <button class="sport-button" onclick="fetchRanking('Handball')">🤾 Handball</button>
-        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
+        <button class="sport-button" onclick="fetchRanking('Volley M')">🏐 Volley M</button>
+        <button class="sport-button" onclick="fetchRanking('Basket M')">🏀 Basket M</button>
+        <button class="sport-button" onclick="fetchRanking('Basket F')">🏀 Basket F</button>
+        <button class="sport-button" onclick="fetchRanking('Foot F')">⚽ Foot F</button>
+        <button class="sport-button" onclick="fetchRanking('Volley F')">🏐 Volley F</button>
       </div>
       <div id="classement-table">
-        <p>Chargement du classement...</p>
+        <p>Sélectionne un sport pour voir le classement.</p>
       </div>
     </div>
   </div>
@@ -156,16 +165,17 @@
       dataRows.forEach(row => {
         const jour = row[0] || '';
         const heure = row[1] || '';
+        const terrain = row[2] || '';
         const teamA = row[3] || '';
         const teamB = row[4] || '';
         const scoreA = row[5] || '';
         const scoreB = row[6] || '';
+        const type = row[7] || '';
 
-        const date = `${jour} ${heure}`;
         const matchHTML = `
           <div class="match">
-            <h3>${sport} - ${date}</h3>
-            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+            <h3>${sport} - ${jour} ${heure} - ${terrain}</h3>
+            <p><strong>${type}</strong> : ${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
           </div>
         `;
         matchesContainer.innerHTML += matchHTML;
