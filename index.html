@@ -39,9 +39,10 @@
   </div>
 
   <script>
-    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv";
+    const originalUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv";
+    const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(originalUrl);
 
-    Papa.parse(csvUrl, {
+    Papa.parse(proxyUrl, {
       download: true,
       header: false,
       complete: function(results) {
