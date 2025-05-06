@@ -125,6 +125,7 @@
       </div>
       <div id="classement-table">
         <!-- Classement sera injecté ici -->
+        <p>Chargement du classement...</p>
       </div>
     </div>
   </div>
@@ -138,7 +139,7 @@
 
     // Fonction pour récupérer et afficher les résultats des matchs par sport
     async function fetchMatches(sport) {
-      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv'; // URL de ton Google Sheet (remplace cette URL par celle de ton sheet pour chaque sport)
+      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
       const response = await fetch(url);
       const text = await response.text();
       const matches = text.trim().split('\n').slice(1); // Ignorer l'en-tête
@@ -147,42 +148,42 @@
       const matchesContainer = document.getElementById('matches');
       matchesContainer.innerHTML = ''; // Réinitialiser les résultats avant d'ajouter les nouveaux matchs
 
-      const filteredMatches = matchList.filter(match => match[3] === sport); // Modifier cette condition pour correspondre au sport dans ton sheet
+      const filteredMatches = matchList.filter(match => match[0] === sport);
 
       filteredMatches.forEach(match => {
-        const teamA = match[4];
-        const teamB = match[5];
-        const scoreA = match[6];
-        const scoreB = match[7];
-        const date = match[0] + ' ' + match[1]; // Format de la date et heure
+        const teamA = match[1];
+        const teamB = match[2];
+        const scoreA = match[3];
+        const scoreB = match[4];
+        const date = match[5];
 
-        const matchHTML = `
+        const matchHTML = 
           <div class="match">
             <h3>${sport} - ${date}</h3>
             <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
           </div>
-        `;
+        ;
         matchesContainer.innerHTML += matchHTML;
       });
     }
 
     // Fonction pour récupérer et afficher le classement par sport
     async function fetchRanking(sport) {
-      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv'; // URL de ton Google Sheet (remplace cette URL par celle de ton sheet pour chaque sport)
+      const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?output=csv'; // Remplace par l'URL de ton Google Sheet
       const response = await fetch(url);
       const text = await response.text();
       const lines = text.trim().split('\n').slice(1); // Ignorer l'en-tête
       const ranking = lines.map(line => line.split(','));
 
-      const filteredRanking = ranking.filter(r => r[3] === sport); // Modifier cette condition pour correspondre au sport dans ton sheet
+      const filteredRanking = ranking.filter(r => r[0] === sport);
 
       // Calcul des points
       const points = {};
       filteredRanking.forEach(match => {
-        const teamA = match[4];
-        const teamB = match[5];
-        const scoreA = parseInt(match[6]);
-        const scoreB = parseInt(match[7]);
+        const teamA = match[1];
+        const teamB = match[2];
+        const scoreA = parseInt(match[3]);
+        const scoreB = parseInt(match[4]);
 
         // Initialisation des équipes si pas encore dans l'objet
         if (!points[teamA]) points[teamA] = 0;
@@ -206,10 +207,10 @@
 
       // Création du tableau de classement
       const table = document.createElement('table');
-      table.innerHTML = `
+      table.innerHTML = 
         <tr><th>Équipe</th><th>Points</th></tr>
-        ${sortedTeams.map(([team, score]) => `<tr><td>${team}</td><td>${score}</td></tr>`).join('')}
-      `;
+        ${sortedTeams.map(([team, score]) => <tr><td>${team}</td><td>${score}</td></tr>).join('')}
+      ;
 
       const div = document.getElementById('classement-table');
       div.innerHTML = ''; // Réinitialiser la section avant d'ajouter le tableau
@@ -218,4 +219,9 @@
 
     // Charger les données au démarrage
     fetchMatches('Rugby');  // Par défaut, afficher les résultats du Rugby
-    fetchRanking('Rugby');  //
+    fetchRanking('Rugby');  // Par défaut, afficher le classement du Rugby
+
+  </script>
+
+</body>
+</html>
