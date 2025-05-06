@@ -7,7 +7,8 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background-color: #f4f4f4;
     }
     header {
@@ -16,14 +17,11 @@
       padding: 1rem;
       text-align: center;
     }
-    img.logo {
-      max-height: 80px;
-    }
     nav {
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       background: #34495e;
+      padding: 10px;
     }
     nav button {
       margin: 5px;
@@ -42,11 +40,6 @@
     }
     .active {
       display: block;
-    }
-    @media (max-width: 600px) {
-      nav button {
-        width: 90%;
-      }
     }
     .sports-buttons {
       display: flex;
@@ -82,7 +75,6 @@
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo" class="logo" />
     <h1>GUAI BORDEL'SS 2025</h1>
   </header>
 
@@ -134,44 +126,70 @@
         emoji: "⚽",
         url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv"
       },
-      "Volley M": {
-        emoji: "🏐",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv"
-      },
-      "Basket M": {
-        emoji: "🏀",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv"
-      },
-      "Basket F": {
-        emoji: "🏀",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv"
-      },
-      "Foot F": {
-        emoji: "⚽",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv"
-      },
-      "Volley F": {
-        emoji: "🏐",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv"
-      },
-      "Tennis": {
-        emoji: "🎾",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv"
-      },
-      "Badminton": {
-        emoji: "🏸",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv"
-      },
-      "Ping-pong": {
-        emoji: "🏓",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv"
-      },
-      "Athlétisme": {
-        emoji: "🏃",
-        url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv"
-      },
-      "Natation": {
-        emoji: "🏊",
-        url: "https://docs.google.com/spreadsheets/d/e/2
-::contentReference[oaicite:8]{index=8}
- 
+      // ... autres sports ici
+    };
+
+    // Générer les boutons de sports
+    function generateSportsButtons() {
+      const sportsContainer = document.getElementById('sports-buttons-results');
+      const rankingContainer = document.getElementById('sports-buttons-ranking');
+
+      Object.keys(sportsData).forEach(sport => {
+        const button = document.createElement('button');
+        button.classList.add('sport-button');
+        button.innerText = `${sportsData[sport].emoji} ${sport}`;
+        button.onclick = () => loadResults(sport);
+        sportsContainer.appendChild(button);
+
+        const rankingButton = button.cloneNode(true);
+        rankingButton.onclick = () => loadRanking(sport);
+        rankingContainer.appendChild(rankingButton);
+      });
+    }
+
+    // Charger les résultats d'un sport
+    function loadResults(sport) {
+      fetch(sportsData[sport].url)
+        .then(response => response.text())
+        .then(csv => {
+          const rows = csv.split("\n").slice(1); // Suppression de l'en-tête
+          const table = `<table>
+            <tr><th>Équipe 1</th><th>Score</th><th>Équipe 2</th></tr>
+            ${rows.map(row => {
+              const cols = row.split(",");
+              return `<tr><td>${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td></tr>`;
+            }).join("")}
+          </table>`;
+          document.getElementById('matches').innerHTML = table;
+        });
+    }
+
+    // Charger le classement d'un sport
+    function loadRanking(sport) {
+      fetch(sportsData[sport].url)
+        .then(response => response.text())
+        .then(csv => {
+          const rows = csv.split("\n").slice(1); // Suppression de l'en-tête
+          const table = `<table>
+            <tr><th>Position</th><th>Équipe</th><th>Points</th></tr>
+            ${rows.map(row => {
+              const cols = row.split(",");
+              return `<tr><td>${cols[0]}</td><td>${cols[1]}</td><td>${cols[2]}</td></tr>`;
+            }).join("")}
+          </table>`;
+          document.getElementById('classement-table').innerHTML = table;
+        });
+    }
+
+    // Afficher la section active
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll('.section');
+      sections.forEach(section => section.classList.remove('active'));
+      document.getElementById(sectionId).classList.add('active');
+    }
+
+    // Initialisation
+    generateSportsButtons();
+  </script>
+</body>
+</html>
