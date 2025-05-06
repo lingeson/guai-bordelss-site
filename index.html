@@ -4,11 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Résultats Handball</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
       background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
     }
     header {
       background: #2c3e50;
@@ -39,41 +41,36 @@
   <script>
     const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv";
 
-    async function fetchAndDisplayCSV() {
-      const container = document.getElementById('matches');
-      try {
-        const response = await fetch(csvUrl);
-        if (!response.ok) throw new Error("Erreur de chargement du CSV");
-
-        const csvText = await response.text();
-        const rows = csvText.trim().split("\n").map(line => line.split(","));
+    Papa.parse(csvUrl, {
+      download: true,
+      header: false,
+      complete: function(results) {
+        const rows = results.data;
+        const container = document.getElementById('matches');
 
         if (rows.length < 2) {
           container.innerHTML = "<p>Aucun match trouvé.</p>";
           return;
         }
 
-        // En-têtes : Jour, Heure, Terrain, Équipe A, Équipe B, Score A, Score B, Type de match
         const content = rows.slice(1).map(row => {
           const [jour, heure, terrain, equipeA, equipeB, scoreA, scoreB, type] = row;
           return `
             <div class="match">
-              <strong>${jour} ${heure} – Terrain ${terrain}</strong><br>
-              ${equipeA} ${scoreA} - ${scoreB} ${equipeB}<br>
-              <em>${type}</em>
+              <strong>${jour || ''} ${heure || ''} – Terrain ${terrain || ''}</strong><br>
+              ${equipeA || ''} ${scoreA || ''} - ${scoreB || ''} ${equipeB || ''}<br>
+              <em>${type || ''}</em>
             </div>
           `;
         }).join("");
 
         container.innerHTML = content;
-
-      } catch (err) {
-        container.innerHTML = "<p>Erreur de chargement.</p>";
-        console.error(err);
+      },
+      error: function(err) {
+        document.getElementById('matches').innerHTML = "<p>Erreur de chargement.</p>";
+        console.error("PapaParse error:", err);
       }
-    }
-
-    document.addEventListener("DOMContentLoaded", fetchAndDisplayCSV);
+    });
   </script>
 </body>
 </html>
