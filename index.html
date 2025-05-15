@@ -1,253 +1,166 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GUAI BORDEL'SS 2025</title>
+  <meta charset="UTF-8">
+  <title>Résultats Sportifs GUAI BORDEL'SS 2025</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background-color: #f4f4f4;
+      margin: 20px;
     }
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 1rem;
+
+    h1 {
       text-align: center;
     }
-    img.logo {
-      max-height: 80px;
-    }
-    nav {
+
+    .tabs {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
       justify-content: center;
-      background: #34495e;
     }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ecf0f1;
+
+    .tabs button {
+      background-color: #eee;
       border: none;
-      border-radius: 5px;
+      padding: 10px 15px;
       cursor: pointer;
+      border-radius: 5px;
     }
-    .content {
-      padding: 1rem;
+
+    .tabs button.active {
+      background-color: #007BFF;
+      color: white;
     }
-    .section {
+
+    .tabcontent {
       display: none;
     }
-    .active {
+
+    .tabcontent.active {
       display: block;
     }
-    .sports-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .sport-button {
-      margin: 8px;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 10px 15px;
-      background-color: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-    }
-    .sport-button:hover {
-      background-color: #bdc3c7;
-    }
+
     table {
-      width: 100%;
       border-collapse: collapse;
-      margin-top: 1rem;
+      width: 100%;
+      margin-top: 10px;
     }
+
     th, td {
+      border: 1px solid #ddd;
       padding: 8px;
       text-align: center;
-      border: 1px solid #ddd;
     }
+
     th {
-      background-color: #34495e;
-      color: white;
+      background-color: #f2f2f2;
     }
-    .match {
-      background-color: #ffffff;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .loader {
+      text-align: center;
+      padding: 20px;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="logo.png" alt="Logo" class="logo" />
-    <h1>GUAI BORDEL'SS 2025</h1>
-  </header>
 
-  <nav>
-    <button onclick="showSection('accueil')">Accueil</button>
-    <button onclick="showSection('sports')">Résultats des matchs</button>
-    <button onclick="showSection('classement')">Classement</button>
-  </nav>
+  <h1>Résultats Sportifs GUAI BORDEL'SS 2025</h1>
 
-  <div class="content">
-    <div id="accueil" class="section active">
-      <h2>Bienvenue !</h2>
-      <p>Retrouvez ici toutes les infos des GUAI BORDEL'SS 2025.</p>
-    </div>
+  <div class="tabs" id="tabs"></div>
+  <div id="tabcontents"></div>
 
-    <div id="sports" class="section">
-      <h2>Résultats des matchs</h2>
-      <div class="sports-buttons" id="sports-buttons-matches"></div>
-      <div id="matches"></div>
-    </div>
-
-    <div id="classement" class="section">
-      <h2>Classement</h2>
-      <div class="sports-buttons" id="sports-buttons-ranking"></div>
-      <div id="classement-table"></div>
-    </div>
-  </div>
-
+  <!-- PapaParse -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <script>
-  const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
-  const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
+    const sheets = [
+      { name: "Handball", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv" },
+      { name: "Rugby", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv" },
+      { name: "Foot M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv" },
+      { name: "Volley M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv" },
+      { name: "Basket M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv" },
+      { name: "Basket F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv" },
+      { name: "Foot F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv" },
+      { name: "Volley F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv" },
+      { name: "Tennis", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv" },
+      { name: "Badminton", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv" },
+      { name: "Ping-pong", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
+      { name: "Athlétisme", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
+      { name: "Natation", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=130176564&single=true&output=csv" },
+      { name: "Escalade", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=361482653&single=true&output=csv" }
+    ];
 
-  const sports = [
-    { name: 'Handball', emoji: '🤾', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv ' },
-    { name: 'Rugby', emoji: '🏈', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv ' },
-    { name: 'Foot M', emoji: '⚽', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv ' },
-    { name: 'Volley M', emoji: '🏐', csvUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv ' },
-    { name: 'Volley F', emoji: '🏐' },
-    { name: 'Basket M', emoji: '🏀' },
-    { name: 'Basket F', emoji: '🏀' },
-    { name: 'Tennis', emoji: '🎾' },
-    { name: 'Badminton', emoji: '🏸' },
-    { name: 'Ping-pong', emoji: '🏓' },
-    { name: 'Athlétisme', emoji: '🏃' },
-    { name: 'Natation', emoji: '🏊' },
-    { name: 'Escalade', emoji: '🧗' }
-  ];
+    const tabsContainer = document.getElementById('tabs');
+    const contentsContainer = document.getElementById('tabcontents');
 
-  function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-  }
-
-  function createSportButtons() {
-    const matchesContainer = document.getElementById('sports-buttons-matches');
-    const rankingContainer = document.getElementById('sports-buttons-ranking');
-
-    sports.forEach(sport => {
-      const matchButton = document.createElement('button');
-      matchButton.className = 'sport-button';
-      matchButton.innerText = `${sport.emoji} ${sport.name}`;
-      matchButton.onclick = () => fetchMatches(sport.name);
-      matchesContainer.appendChild(matchButton);
-
-      const rankingButton = document.createElement('button');
-      rankingButton.className = 'sport-button';
-      rankingButton.innerText = `${sport.emoji} ${sport.name}`;
-      rankingButton.onclick = () => fetchRanking(sport.name);
-      rankingContainer.appendChild(rankingButton);
-    });
-  }
-
-  async function fetchMatches(sport) {
-    const container = document.getElementById('matches');
-    container.innerHTML = '<p>Chargement...</p>';
-
-    try {
-      // Vérifier si la feuille existe
-      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
-      const metaResponse = await fetch(metaUrl);
-      const metaData = await metaResponse.json();
-      const availableSheets = metaData.sheets.map(s => s.properties.title);
-
-      if (!availableSheets.includes(sport)) {
-        container.innerHTML = `<p>Erreur : l'onglet "${sport}" n'existe pas.</p>`;
-        return;
-      }
-
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const rows = data.values;
-
-      if (!rows || rows.length < 2) {
-        container.innerHTML = '<p>Aucun match trouvé.</p>';
-        return;
-      }
-
-      const matches = rows.slice(1).map(row => {
-        const teamA = row[0] || '', teamB = row[1] || '', scoreA = row[2] || '', scoreB = row[3] || '', date = row[4] || '';
-        return `<div class="match"><h3>${sport} - ${date}</h3><p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p></div>`;
-      }).join('');
-      container.innerHTML = matches;
-
-    } catch (err) {
-      container.innerHTML = '<p>Erreur de chargement.</p>';
-      console.error(err);
-    }
-  }
-
-  async function fetchRanking(sport) {
-    const container = document.getElementById('classement-table');
-    container.innerHTML = '<p>Chargement...</p>';
-
-    try {
-      // Vérifier si la feuille existe
-      const metaUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?key=${apiKey}`;
-      const metaResponse = await fetch(metaUrl);
-      const metaData = await metaResponse.json();
-      const availableSheets = metaData.sheets.map(s => s.properties.title);
-
-      if (!availableSheets.includes(sport)) {
-        container.innerHTML = `<p>Erreur : l'onglet "${sport}" n'existe pas.</p>`;
-        return;
-      }
-
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const rows = data.values;
-
-      if (!rows || rows.length < 2) {
-        container.innerHTML = '<p>Aucun classement disponible.</p>';
-        return;
-      }
-
-      const scores = {};
-      rows.slice(1).forEach(row => {
-        const teamA = row[0], teamB = row[1];
-        const scoreA = parseInt(row[2]), scoreB = parseInt(row[3]);
-        if (!teamA || !teamB || isNaN(scoreA) || isNaN(scoreB)) return;
-        scores[teamA] = (scores[teamA] || 0) + (scoreA > scoreB ? 3 : scoreA === scoreB ? 1 : 0);
-        scores[teamB] = (scores[teamB] || 0) + (scoreB > scoreA ? 3 : scoreB === scoreA ? 1 : 0);
+    sheets.forEach((sheet, index) => {
+      // Onglet bouton
+      const btn = document.createElement('button');
+      btn.textContent = sheet.name;
+      if (index === 0) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tabcontent').forEach(div => div.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + index).classList.add('active');
       });
+      tabsContainer.appendChild(btn);
 
-      const sorted = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-      const table = `
-        <table>
-          <tr><th>Équipe</th><th>Points</th></tr>
-          ${sorted.map(([team, pts]) => `<tr><td>${team}</td><td>${pts}</td></tr>`).join('')}
-        </table>
-      `;
-      container.innerHTML = table;
+      // Contenu de l'onglet
+      const content = document.createElement('div');
+      content.id = 'tab-' + index;
+      content.classList.add('tabcontent');
+      if (index === 0) content.classList.add('active');
+      content.innerHTML = '<div class="loader">Chargement...</div>';
+      contentsContainer.appendChild(content);
 
-    } catch (err) {
-      container.innerHTML = '<p>Erreur de chargement.</p>';
-      console.error(err);
-    }
-  }
+      // Chargement des données CSV
+      fetch(sheet.url)
+        .then(res => res.text())
+        .then(csv => {
+          const parsed = Papa.parse(csv, { header: true });
+          const data = parsed.data;
+          if (!data || data.length === 0) {
+            content.innerHTML = "<p>Aucune donnée disponible.</p>";
+            return;
+          }
 
-  // Initialise les boutons au chargement de la page
-  document.addEventListener('DOMContentLoaded', createSportButtons);
-</script>
+          const table = document.createElement('table');
+          const thead = document.createElement('thead');
+          const tbody = document.createElement('tbody');
+
+          // En-têtes
+          const headers = Object.keys(data[0]);
+          const headerRow = document.createElement('tr');
+          headers.forEach(h => {
+            const th = document.createElement('th');
+            th.textContent = h;
+            headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+
+          // Lignes
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            headers.forEach(h => {
+              const td = document.createElement('td');
+              td.textContent = row[h] || '';
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          content.innerHTML = '';
+          content.appendChild(table);
+        })
+        .catch(() => {
+          content.innerHTML = "<p>Erreur de chargement des données.</p>";
+        });
+    });
+  </script>
+
 </body>
 </html>
