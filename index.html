@@ -2,165 +2,145 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Résultats Sportifs GUAI BORDEL'SS 2025</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-      justify-content: center;
-    }
-
-    .tabs button {
-      background-color: #eee;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
-    .tabs button.active {
-      background-color: #007BFF;
-      color: white;
-    }
-
-    .tabcontent {
-      display: none;
-    }
-
-    .tabcontent.active {
-      display: block;
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    .loader {
-      text-align: center;
-      padding: 20px;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUAI BORDEL'SS 2025</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
+  <header>
+    <h1>GUAI BORDEL'SS 2025</h1>
+    <nav>
+      <button onclick="showTab('accueil')">🏠 Accueil</button>
+      <button onclick="showTab('resultats')">📋 Résultats</button>
+      <button onclick="showTab('classements')">🏆 Classements</button>
+      <button onclick="showTab('phasefinale')">🎯 Phase Finale</button>
+      <button onclick="showTab('contacts')">📞 Contacts Urgence</button>
+    </nav>
+  </header>
 
-  <h1>Résultats Sportifs GUAI BORDEL'SS 2025</h1>
+  <main>
+    <section id="accueil" class="tab active">
+      <h2>Bienvenue sur le site des GUAI BORDEL'SS 2025</h2>
+      <p>Retrouvez ici tous les résultats, classements et informations importantes du tournoi !</p>
+    </section>
 
-  <div class="tabs" id="tabs"></div>
-  <div id="tabcontents"></div>
+    <section id="resultats" class="tab">
+      <h2>Résultats</h2>
+      <div id="sports-resultats"></div>
+    </section>
 
-  <!-- PapaParse -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <section id="classements" class="tab">
+      <h2>Classements</h2>
+      <div id="sports-classements"></div>
+    </section>
+
+    <section id="phasefinale" class="tab">
+      <h2>Phase Finale</h2>
+      <div id="finales"></div>
+    </section>
+
+    <section id="contacts" class="tab">
+      <h2>Contacts d'urgence</h2>
+      <ul>
+        <li><strong>Responsable général :</strong> Jean Dupont - 06 01 02 03 04</li>
+        <li><strong>Médecin :</strong> Dr. Durand - 06 05 06 07 08</li>
+        <li><strong>Sécurité :</strong> SécuriTeam - 06 09 10 11 12</li>
+      </ul>
+    </section>
+  </main>
+
   <script>
-    const sheets = [
-      { name: "Handball", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv" },
-      { name: "Rugby", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv" },
-      { name: "Foot M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv" },
-      { name: "Volley M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv" },
-      { name: "Basket M", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv" },
-      { name: "Basket F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv" },
-      { name: "Foot F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv" },
-      { name: "Volley F", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv" },
-      { name: "Tennis", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv" },
-      { name: "Badminton", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv" },
-      { name: "Ping-pong", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
-      { name: "Athlétisme", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
-      { name: "Natation", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=130176564&single=true&output=csv" },
-      { name: "Escalade", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=361482653&single=true&output=csv" }
-    ];
+    const sports = {
+      handball: {
+        handball: { nom: "🧫 Handball", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv" },
+      rugby: { nom: "🏉 Rugby", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXr9r0Rbn6xQ7tU7BaV2acg9goIg3B8aIQVbLKo9VaSo4cD2zRfcmWEy-ykMmn6cAfKbe7Bbi1Dz2F/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXr9r0Rbn6xQ7tU7BaV2acg9goIg3B8aIQVbLKo9VaSo4cD2zRfcmWEy-ykMmn6cAfKbe7Bbi1Dz2F/pub?output=csv" },
+      footM: { nom: "⚽ Foot M", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vStQn6qHboPiPGtDGUhh2BSakvRP1JSgLIlEgfNL69BBlOt4-MHZEEpTztXUeDX8E62CKuor_tzNJQu/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vStQn6qHboPiPGtDGUhh2BSakvRP1JSgLIlEgfNL69BBlOt4-MHZEEpTztXUeDX8E62CKuor_tzNJQu/pub?output=csv" },
+      volleyM: { nom: "🏐 Volley M", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQaVG4Zs-cpCnG3nJzrT9OxqHgA6NEunZXO_7Gp7ePyOEaZBuLwAOQihKObOmmuUs_J6ufxAlj8UOhK/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQaVG4Zs-cpCnG3nJzrT9OxqHgA6NEunZXO_7Gp7ePyOEaZBuLwAOQihKObOmmuUs_J6ufxAlj8UOhK/pub?output=csv" },
+      basketM: { nom: "🏀 Basket M", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAqgDiI__ebRHj-m9gz6BvJmFSpMN5axdk7qv1BQpmTEnKpY-BQnDpDjUjHcQff5TkDL6xe3sGd-yJ/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAqgDiI__ebRHj-m9gz6BvJmFSpMN5axdk7qv1BQpmTEnKpY-BQnDpDjUjHcQff5TkDL6xe3sGd-yJ/pub?output=csv" },
+      basketF: { nom: "🏀 Basket F", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBWrlYVqBK7doMJnK0xqvxnFn8Tn9bH_fzDPqgUpM9CMcZIFjefm7nV3glRfhMmJhC5Ar0Z_M6-UfJ/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQBWrlYVqBK7doMJnK0xqvxnFn8Tn9bH_fzDPqgUpM9CMcZIFjefm7nV3glRfhMmJhC5Ar0Z_M6-UfJ/pub?output=csv" },
+      footF: { nom: "⚽ Foot F", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLVDj4Hw5mnT6cZfZSKgmNRbZgXUqt53dU65P2JeJ95DqpmVUpyUq9ViX46_ydkK4zY9tx7Dey8CGi/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLVDj4Hw5mnT6cZfZSKgmNRbZgXUqt53dU65P2JeJ95DqpmVUpyUq9ViX46_ydkK4zY9tx7Dey8CGi/pub?output=csv" },
+      volleyF: { nom: "🏐 Volley F", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIPQJmTZMMP4keMn5-POJ9dI6sQqMB-jWc4wVrKQUj4XTKjX9h3WZsxqegTdpFTK8oOMBCt-YLq7Hx/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIPQJmTZMMP4keMn5-POJ9dI6sQqMB-jWc4wVrKQUj4XTKjX9h3WZsxqegTdpFTK8oOMBCt-YLq7Hx/pub?output=csv" },
+      tennis: { nom: "🎾 Tennis", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwW3LzMXzp28Z7J-sX3Q5LXE5KuZIkv-NazOdZShOcNAv8-yLJZjXEv6Gn3VbrVU4e_bTzQeQ62yGl/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwW3LzMXzp28Z7J-sX3Q5LXE5KuZIkv-NazOdZShOcNAv8-yLJZjXEv6Gn3VbrVU4e_bTzQeQ62yGl/pub?output=csv" },
+      badminton: { nom: "🎸 Badminton", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRAvj-Y9dREemf9ctEFb8p_zVDlRmAoQ2f2EpbOrLEokHZFnNPRXeQEvBP-nFO8T0HPd8FJjeediy1/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRRAvj-Y9dREemf9ctEFb8p_zVDlRmAoQ2f2EpbOrLEokHZFnNPRXeQEvBP-nFO8T0HPd8FJjeediy1/pub?output=csv" },
+      pingpong: { nom: "🏓 Ping-pong", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTHKY_xehXcUOEiHMRQdUYTtzEKiCF3zDF6OMMcOZkkMkhdM9B8D3XTCpI91T6w1bFaYbD3b0Srs32f/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTHKY_xehXcUOEiHMRQdUYTtzEKiCF3zDF6OMMcOZkkMkhdM9B8D3XTCpI91T6w1bFaYbD3b0Srs32f/pub?output=csv" },
+      athletisme: { nom: "🏃 Athlétisme", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIBYOcJ9ntzWHExa9CwzDhFTYfsBErY-LTfO1HEn8NUxHnE6rql8SDO5TjFrrbzfIXkBd8VniqgmEh/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRIBYOcJ9ntzWHExa9CwzDhFTYfsBErY-LTfO1HEn8NUxHnE6rql8SDO5TjFrrbzfIXkBd8VniqgmEh/pub?output=csv" },
+      natation: { nom: "🏊 Natation", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vScdfMPYAkA8NPlu9H0TW_EoKZCOK2qHQqJik2gKv-JXc7Rfv07u9gA95HQvutptEVzLad2vBLZEnCw/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vScdfMPYAkA8NPlu9H0TW_EoKZCOK2qHQqJik2gKv-JXc7Rfv07u9gA95HQvutptEVzLad2vBLZEnCw/pub?output=csv" },
+      escalade: { nom: "🧂 Escalade", resultatsSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSPxTscER9L9s4Z6l0rfWyVrLGHE5LZpsxnKTGO0G5HtRO6N-FtE9SpcFFMd93hZGEXERCKCGn0l7l/pub?output=csv", classementSheet: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTSPxTscER9L9s4Z6l0rfWyVrLGHE5LZpsxnKTGO0G5HtRO6N-FtE9SpcFFMd93hZGEXERCKCGn0l7l/pub?output=csv" }
+    };
 
-    const tabsContainer = document.getElementById('tabs');
-    const contentsContainer = document.getElementById('tabcontents');
+    function showTab(id) {
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
 
-    sheets.forEach((sheet, index) => {
-      // Onglet bouton
-      const btn = document.createElement('button');
-      btn.textContent = sheet.name;
-      if (index === 0) btn.classList.add('active');
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tabcontent').forEach(div => div.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + index).classList.add('active');
+    function loadCSV(url, callback) {
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          callback(results.data);
+        }
       });
-      tabsContainer.appendChild(btn);
+    }
 
-      // Contenu de l'onglet
-      const content = document.createElement('div');
-      content.id = 'tab-' + index;
-      content.classList.add('tabcontent');
-      if (index === 0) content.classList.add('active');
-      content.innerHTML = '<div class="loader">Chargement...</div>';
-      contentsContainer.appendChild(content);
+    function renderTable(data) {
+      let html = '<table><thead><tr>';
+      const headers = Object.keys(data[0]);
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += '</tr></thead><tbody>';
+      data.forEach(row => {
+        html += '<tr>';
+        headers.forEach(h => html += `<td>${row[h] || ''}</td>`);
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
 
-      // Chargement des données CSV
-      fetch(sheet.url)
-        .then(res => res.text())
-        .then(csv => {
-          const parsed = Papa.parse(csv, { header: true });
-          const data = parsed.data;
-          if (!data || data.length === 0) {
-            content.innerHTML = "<p>Aucune donnée disponible.</p>";
-            return;
-          }
-
-          const table = document.createElement('table');
-          const thead = document.createElement('thead');
-          const tbody = document.createElement('tbody');
-
-          // En-têtes
-          const headers = Object.keys(data[0]);
-          const headerRow = document.createElement('tr');
-          headers.forEach(h => {
-            const th = document.createElement('th');
-            th.textContent = h;
-            headerRow.appendChild(th);
+    function setupSportTabs(containerId, isClassement) {
+      const container = document.getElementById(containerId);
+      Object.entries(sports).forEach(([key, sport]) => {
+        const button = document.createElement('button');
+        button.innerText = sport.nom;
+        button.onclick = () => {
+          const url = isClassement ? sport.classementSheet : sport.resultatsSheet;
+          loadCSV(url, data => {
+            container.innerHTML = `<h3>${sport.nom}</h3>` + renderTable(data);
           });
-          thead.appendChild(headerRow);
+        };
+        container.appendChild(button);
+      });
+    }
 
-          // Lignes
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            headers.forEach(h => {
-              const td = document.createElement('td');
-              td.textContent = row[h] || '';
-              tr.appendChild(td);
-            });
-            tbody.appendChild(tr);
-          });
+    setupSportTabs("sports-resultats", false);
+    setupSportTabs("sports-classements", true);
 
-          table.appendChild(thead);
-          table.appendChild(tbody);
-          content.innerHTML = '';
-          content.appendChild(table);
-        })
-        .catch(() => {
-          content.innerHTML = "<p>Erreur de chargement des données.</p>";
-        });
-    });
+    function calculerPhaseFinale() {
+      loadCSV(sports.handball.classementSheet, data => {
+        const pouleA = data.filter(row => row.Poule === 'A').sort((a, b) => b.Points - a.Points);
+        const pouleB = data.filter(row => row.Poule === 'B').sort((a, b) => b.Points - a.Points);
+
+        const demiFinales = [
+          `${pouleA[0].Equipe} vs ${pouleB[1].Equipe}`,
+          `${pouleB[0].Equipe} vs ${pouleA[1].Equipe}`
+        ];
+
+        const finale = "Vainqueur Demi 1 vs Vainqueur Demi 2";
+        const petiteFinale = "Perdant Demi 1 vs Perdant Demi 2";
+
+        document.getElementById("finales").innerHTML = `
+          <h3>Demi-finales</h3>
+          <ul>${demiFinales.map(m => `<li>${m}</li>`).join('')}</ul>
+          <h3>Finale</h3>
+          <p>${finale}</p>
+          <h3>Petite Finale</h3>
+          <p>${petiteFinale}</p>
+        `;
+      });
+    }
+
+    document.querySelector('button[onclick*="phasefinale"]').addEventListener('click', calculerPhaseFinale);
   </script>
-
 </body>
 </html>
