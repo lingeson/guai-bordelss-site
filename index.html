@@ -42,162 +42,162 @@
     </section>
   </div>
 
+
+
+
+
+
   <script>
-    const sports = {
-      handball: {
-        nom: "Handball",
-        emoji: "🤾‍♂️",
-        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv" // remplacer par ton vrai lien CSV
-      },
-      rugby: {
-        nom: "Rugby",
-        emoji: "🏉",
-        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv" // remplacer par ton vrai lien CSV
+  const sports = {
+    handball: {
+      nom: "Handball",
+      emoji: "🤾‍♂️",
+      urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv"
+    },
+    rugby: {
+      nom: "Rugby",
+      emoji: "🏉",
+      urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
+    }
+  };
+
+  const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
+
+  let sportSelectionne = null;
+  let typeMatchSelectionne = null;
+  let dataCSV = null;
+
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + id).classList.add('active');
+  }
+
+  function parseCSV(csvText) {
+    return csvText.trim().split('\n').map(line => line.split(',').map(cell => cell.trim()));
+  }
+
+  async function fetchCSV(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
+    return parseCSV(await res.text());
+  }
+
+  function createSportButtons() {
+    const container = document.getElementById('buttons-sports');
+    container.innerHTML = '';
+    Object.entries(sports).forEach(([key, sport]) => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-button';
+      btn.innerText = `${sport.emoji} ${sport.nom}`;
+      btn.onclick = () => {
+        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sportSelectionne = key;
+        typeMatchSelectionne = null;
+        dataCSV = null;
+        clearTypeMatchButtons();
+        loadDataAndShowTypes(key);
+        document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un type de match.';
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  function clearTypeMatchButtons() {
+    document.getElementById('buttons-type-match').innerHTML = '';
+  }
+
+  function createTypeMatchButtons(types) {
+    const container = document.getElementById('buttons-type-match');
+    container.innerHTML = '';
+    types.forEach(type => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-button';
+      btn.innerText = type;
+      btn.onclick = () => {
+        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        typeMatchSelectionne = type;
+        afficherResultatsFiltrees();
+      };
+      container.appendChild(btn);
+    });
+  }
+
+  async function loadDataAndShowTypes(sportKey) {
+    const url = sports[sportKey].urlCSV;
+    try {
+      const data = await fetchCSV(url);
+      dataCSV = data;
+
+      const headers = data[0];
+      // Recherche flexible de la colonne 'Type de match' (insensible casse, espaces, accents)
+      function normalizeHeader(str) {
+        return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s/g, '');
       }
-      // Ajouter d'autres sports ici
-    };
-
-    // Types de match à filtrer
-    const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
-
-    let sportSelectionne = null;
-    let typeMatchSelectionne = null;
-    let dataCSV = null; // stockera toutes les données du CSV chargé
-
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-      document.getElementById('btn-' + id).classList.add('active');
-    }
-
-    function parseCSV(csvText) {
-      return csvText.trim().split('\n').map(line => {
-        // support basique pour les cellules entre guillemets avec virgules
-        const regex = /(?:,|\n|^)(?:"([^"]*)"|([^",\n]*))/g;
-        const row = [];
-        let match;
-        let lineText = line;
-        // Simple split by comma here (attention aux virgules dans champs, à améliorer si besoin)
-        return line.split(',').map(cell => cell.trim());
-      });
-    }
-
-    async function fetchCSV(url) {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
-      return parseCSV(await res.text());
-    }
-
-    // Crée les boutons pour choisir un sport
-    function createSportButtons() {
-      const container = document.getElementById('buttons-sports');
-      container.innerHTML = '';
-      Object.entries(sports).forEach(([key, sport]) => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-button';
-        btn.innerText = `${sport.emoji} ${sport.nom}`;
-        btn.onclick = () => {
-          container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          sportSelectionne = key;
-          typeMatchSelectionne = null;
-          dataCSV = null;
-          clearTypeMatchButtons();
-          loadDataAndShowTypes(key);
-          document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un type de match.';
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    function clearTypeMatchButtons() {
-      document.getElementById('buttons-type-match').innerHTML = '';
-    }
-
-    // Crée les boutons pour choisir le type de match
-    function createTypeMatchButtons(types) {
-      const container = document.getElementById('buttons-type-match');
-      container.innerHTML = '';
-      types.forEach(type => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-button';
-        btn.innerText = type;
-        btn.onclick = () => {
-          container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          typeMatchSelectionne = type;
-          afficherResultatsFiltrees();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    // Charge le CSV, stocke les données dans dataCSV puis affiche les boutons types de match disponibles (uniques dans CSV)
-    async function loadDataAndShowTypes(sportKey) {
-      const url = sports[sportKey].urlCSV;
-      try {
-        const data = await fetchCSV(url);
-        dataCSV = data;
-
-        // Trouver index de la colonne "Type de match" (ignore casse)
-        const headers = data[0];
-        const idxTypeMatch = headers.findIndex(h => h.toLowerCase() === 'type de match');
-
-        if (idxTypeMatch === -1) {
-          document.getElementById('container-resultats').innerHTML = 'Colonne "Type de match" introuvable dans la source.';
-          clearTypeMatchButtons();
-          return;
-        }
-
-        // Récupérer tous les types uniques dans la colonne "Type de match"
-        const uniqueTypes = [...new Set(data.slice(1).map(row => row[idxTypeMatch]))].filter(t => t);
-
-        // Trier types selon ordre défini dans typesMatchs, puis ajouter les autres si besoin
-        const sortedTypes = typesMatchs.filter(t => uniqueTypes.includes(t))
-                           .concat(uniqueTypes.filter(t => !typesMatchs.includes(t)));
-
-        createTypeMatchButtons(sortedTypes);
-
-      } catch(e) {
-        document.getElementById('container-resultats').innerHTML = 'Erreur lors du chargement des données.';
-        console.error(e);
-      }
-    }
-
-    // Affiche dans le tableau uniquement les lignes filtrées selon sportSelectionne et typeMatchSelectionne
-    function afficherResultatsFiltrees() {
-      const container = document.getElementById('container-resultats');
-      if (!dataCSV || !sportSelectionne || !typeMatchSelectionne) {
-        container.innerHTML = 'Veuillez choisir un sport et un type de match.';
-        return;
-      }
-
-      const headers = dataCSV[0];
-      const idxTypeMatch = headers.findIndex(h => h.toLowerCase() === 'type de match');
+      const idxTypeMatch = headers.findIndex(h => normalizeHeader(h) === normalizeHeader('Type de match'));
 
       if (idxTypeMatch === -1) {
-        container.innerHTML = 'Colonne "Type de match" introuvable.';
+        document.getElementById('container-resultats').innerHTML = 'Colonne "Type de match" introuvable dans la source.';
+        clearTypeMatchButtons();
         return;
       }
 
-      // Filtrer lignes par type de match choisi
-      const filteredRows = dataCSV.slice(1).filter(row => row[idxTypeMatch] === typeMatchSelectionne);
+      // Extraire tous les types uniques (nettoyage des espaces superflus)
+      const uniqueTypes = [...new Set(data.slice(1).map(row => row[idxTypeMatch]?.trim()))].filter(t => t);
 
-      if (filteredRows.length === 0) {
-        container.innerHTML = `Aucun résultat trouvé pour "${typeMatchSelectionne}".`;
-        return;
-      }
+      // Trier selon ordre défini, puis rajouter les autres types trouvés
+      const sortedTypes = typesMatchs.filter(t => uniqueTypes.includes(t))
+                         .concat(uniqueTypes.filter(t => !typesMatchs.includes(t)));
 
-      let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-      html += filteredRows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
-      html += '</tbody></table>';
+      createTypeMatchButtons(sortedTypes);
 
-      container.innerHTML = html;
+    } catch(e) {
+      document.getElementById('container-resultats').innerHTML = 'Erreur lors du chargement des données.';
+      console.error(e);
+    }
+  }
+
+  function afficherResultatsFiltrees() {
+    const container = document.getElementById('container-resultats');
+    if (!dataCSV || !sportSelectionne || !typeMatchSelectionne) {
+      container.innerHTML = 'Veuillez choisir un sport et un type de match.';
+      return;
     }
 
-    // Initialisation
-    createSportButtons();
-  </script>
+    const headers = dataCSV[0];
+    function normalizeHeader(str) {
+      return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s/g, '');
+    }
+    const idxTypeMatch = headers.findIndex(h => normalizeHeader(h) === normalizeHeader('Type de match'));
+
+    if (idxTypeMatch === -1) {
+      container.innerHTML = 'Colonne "Type de match" introuvable.';
+      return;
+    }
+
+    // Filtrer les lignes dont la colonne Type de match contient (insensible à la casse) le filtre sélectionné
+    const filteredRows = dataCSV.slice(1).filter(row => {
+      const cell = row[idxTypeMatch] || '';
+      return cell.toLowerCase().includes(typeMatchSelectionne.toLowerCase());
+    });
+
+    if (filteredRows.length === 0) {
+      container.innerHTML = `Aucun résultat trouvé pour "${typeMatchSelectionne}".`;
+      return;
+    }
+
+    let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+    html += filteredRows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
+    html += '</tbody></table>';
+
+    container.innerHTML = html;
+  }
+
+  createSportButtons();
+</script>
+
 </body>
 </html>
