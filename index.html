@@ -1,65 +1,138 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GUAI BORDEL'SS 2025 - Résultats et Classements</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; margin: 0; padding: 0; }
-    header { background:#2c3e50; color:#fff; padding:1rem; text-align:center; }
-    nav { display:flex; justify-content:center; background:#34495e; flex-wrap: wrap; }
-    nav button {
-      margin:5px; padding:10px 20px; font-size:16px;
-      background:#ecf0f1; border:none; border-radius:5px; cursor:pointer;
-      transition: background-color 0.3s;
-    }
-    nav button:hover, nav button.active { background:#bdc3c7; }
-    .content { max-width:1000px; margin:auto; padding:1rem; }
-    .section { display:none; }
-    .section.active { display:block; }
-    .filter-buttons {
-      display:flex; justify-content:center; margin-bottom:1rem; flex-wrap:wrap;
-    }
-    .filter-button {
-      margin:5px 10px; padding:8px 15px; font-size:18px; cursor:pointer;
-      background:#ecf0f1; border:none; border-radius:5px;
-      transition: background-color 0.3s;
-    }
-    .filter-button:hover, .filter-button.active { background:#bdc3c7; }
-    table {
-      width:100%; border-collapse:collapse; background:#fff;
-      box-shadow:0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom:1rem;
-    }
-    th, td { padding:8px; border:1px solid #ddd; text-align:center; }
-    th { background:#34495e; color:#fff; }
-    .message { text-align:center; font-style:italic; margin-top:1rem; color:#666; }
-    #btn-classement, #btn-phase-finale {
-      margin: 5px 10px; padding: 10px 20px; font-size: 16px;
-      border: none; border-radius: 5px; cursor: pointer;
-      color: white;
-    }
-    #btn-classement { background: #1abc9c; }
-    #btn-phase-finale { background: #e67e22; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>GUAI BORDEL'SS 2025 - Résultats & Phase finale</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin:0; padding:0;
+    background:#f4f4f4;
+    color:#333;
+  }
+  header {
+    background:#2c3e50;
+    color:#fff;
+    text-align:center;
+    padding:1rem;
+  }
+  img.logo {
+    max-height:80px;
+    vertical-align:middle;
+  }
+  nav {
+    background:#34495e;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    padding:0.5rem;
+  }
+  nav button {
+    margin:5px;
+    padding:10px 20px;
+    font-size:16px;
+    background:#ecf0f1;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    transition:background-color 0.3s;
+  }
+  nav button:hover, nav button.active {
+    background:#bdc3c7;
+  }
+  .content {
+    max-width:900px;
+    margin:auto;
+    padding:1rem;
+  }
+  .section {
+    display:none;
+  }
+  .section.active {
+    display:block;
+  }
+  .sports-buttons, .poule-buttons {
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    margin-bottom:1rem;
+  }
+  .sport-button, .poule-button {
+    margin:5px 10px;
+    padding:8px 15px;
+    font-size:18px;
+    cursor:pointer;
+    background:#ecf0f1;
+    border:none;
+    border-radius:5px;
+    transition:background-color 0.3s;
+  }
+  .sport-button:hover, .poule-button:hover,
+  .sport-button.active, .poule-button.active {
+    background:#bdc3c7;
+  }
+  table {
+    width:100%;
+    border-collapse:collapse;
+    background:#fff;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+  }
+  th, td {
+    padding:8px;
+    border:1px solid #ddd;
+    text-align:center;
+  }
+  th {
+    background:#34495e;
+    color:#fff;
+  }
+  .message {
+    text-align:center;
+    font-style:italic;
+    margin-top:1rem;
+    color:#666;
+  }
+</style>
 </head>
 <body>
-  <header>
-    <h1>GUAI BORDEL'SS 2025</h1>
-  </header>
 
-  <nav id="nav-sports"></nav>
+<header>
+  <img src="logo.png" alt="Logo" class="logo" />
+  <h1>GUAI BORDEL'SS 2025</h1>
+</header>
 
-  <div class="content">
-    <section id="resultats" class="section active">
-      <h2>Résultats des matchs</h2>
-      <div class="filter-buttons" id="buttons-type-match"></div>
-      <button id="btn-classement" style="display:none;">Afficher classement</button>
-      <button id="btn-phase-finale" style="display:none;">Afficher phase finale</button>
-      <div id="container-resultats" class="message">Veuillez choisir un sport et un type de match.</div>
-    </section>
-  </div>
+<nav>
+  <button id="btn-accueil" class="active" onclick="showSection('accueil')">Accueil</button>
+  <button id="btn-resultats" onclick="showSection('resultats')">Résultats</button>
+  <button id="btn-phase-finale" onclick="showSection('phase-finale')">Phase finale</button>
+</nav>
+
+<div class="content">
+
+  <!-- Accueil -->
+  <section id="accueil" class="section active">
+    <h2>Bienvenue !</h2>
+    <p>Retrouvez toutes les informations des GUAI BORDEL'SS 2025.</p>
+  </section>
+
+  <!-- Résultats -->
+  <section id="resultats" class="section">
+    <h2>Résultats des matchs</h2>
+    <div class="sports-buttons" id="buttons-resultats"></div>
+    <div class="poule-buttons" id="buttons-poules-resultats"></div>
+    <div id="container-resultats" class="message">Veuillez choisir un sport et une poule.</div>
+  </section>
+
+  <!-- Phase finale -->
+  <section id="phase-finale" class="section">
+    <h2>Phase finale</h2>
+    <div class="sports-buttons" id="buttons-phase-finale"></div>
+    <div id="container-phase-finale" class="message">Veuillez choisir un sport.</div>
+  </section>
+
+</div>
+
 
   <script>
     const sports = {
