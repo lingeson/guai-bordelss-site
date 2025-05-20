@@ -2,224 +2,143 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GUAI BORDEL'SS 2025</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background-color: #f4f4f4;
-    }
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    img.logo {
-      max-height: 80px;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: #34495e;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .content {
-      padding: 1rem;
-    }
-    .section {
-      display: none;
-    }
-    .active {
-      display: block;
-    }
-    @media (max-width: 600px) {
-      nav button {
-        width: 90%;
-      }
-    }
-    .sports-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .sport-button {
-      margin: 10px;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 10px;
-      background-color: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-    }
-    .sport-button:hover {
-      background-color: #bdc3c7;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      text-align: center;
-      border: 1px solid #ddd;
-    }
-    th {
-      background-color: #34495e;
-      color: white;
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; }
+    nav { display: flex; justify-content: center; gap: 10px; background-color: #f1f1f1; padding: 10px; }
+    nav button { padding: 10px 20px; cursor: pointer; }
+    .active { background-color: #4CAF50; color: white; }
+    #sport-selector { margin: 10px auto; display: block; padding: 10px; }
+    .tab-content { display: none; padding: 20px; }
+    .tab-content.active { display: block; }
+    .columns { display: flex; justify-content: space-between; gap: 20px; }
+    .column { flex: 1; }
+    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background-color: #f2f2f2; }
   </style>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo" class="logo" />
     <h1>GUAI BORDEL'SS 2025</h1>
   </header>
 
+  <select id="sport-selector">
+    <option value="handball">Handball</option>
+    <option value="rugby">Rugby</option>
+    <option value="footm">Foot M</option>
+    <option value="footf">Foot F</option>
+    <option value="volleym">Volley M</option>
+    <option value="volleyf">Volley F</option>
+    <option value="basketm">Basket M</option>
+    <option value="basketf">Basket F</option>
+    <option value="tennis">Tennis</option>
+    <option value="badminton">Badminton</option>
+    <option value="pingpong">Ping-pong</option>
+    <option value="athletisme">Athlétisme</option>
+    <option value="natation">Natation</option>
+    <option value="escalade">Escalade</option>
+  </select>
+
   <nav>
-    <button onclick="showSection('accueil')">Accueil</button>
-    <button onclick="showSection('sports')">Résultats des matchs</button>
-    <button onclick="showSection('classement')">Classement</button>
+    <button onclick="showTab('poules')" class="active">Résultats poules</button>
+    <button onclick="showTab('phase')">Phase finale</button>
+    <button onclick="showTab('contacts')">Contacts urgence</button>
   </nav>
 
-  <div class="content">
-    <div id="accueil" class="section active">
-      <h2>Bienvenue !</h2>
-      <p>Retrouvez ici toutes les infos des GUAI BORDEL'SS 2025.</p>
-    </div>
-
-    <div id="sports" class="section">
-      <h2>Résultats des matchs</h2>
-      <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchMatches('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+  <div id="poules" class="tab-content active">
+    <div class="columns">
+      <div class="column">
+        <h2>Poule A</h2>
+        <div id="poule-a"></div>
       </div>
-      <div id="matches">
-        <!-- Les résultats des matchs seront affichés ici -->
-      </div>
-    </div>
-
-    <div id="classement" class="section">
-      <h2>Classement</h2>
-      <div class="sports-buttons">
-        <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
-        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
-        <button class="sport-button" onclick="fetchRanking('Handball')">🏀 Handball</button>
-        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
-        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
-        <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
-      </div>
-      <div id="classement-table">
-        <!-- Classement sera injecté ici -->
-        <p>Chargement du classement...</p>
+      <div class="column">
+        <h2>Poule B</h2>
+        <div id="poule-b"></div>
       </div>
     </div>
   </div>
 
+  <div id="phase" class="tab-content">
+    <h2>Phase finale</h2>
+    <div id="phase-finale"></div>
+  </div>
+
+  <div id="contacts" class="tab-content">
+    <h2>Contacts d'urgence</h2>
+    <ul>
+      <li>Pompiers : 18</li>
+      <li>Police : 17</li>
+      <li>SAMU : 15</li>
+      <li>Numéro d'urgence européen : 112</li>
+    </ul>
+  </div>
+
   <script>
-    const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
-    const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
+    const sheetUrls = {
+      handball: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv',
+      rugby: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv',
+      footm: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv',
+      footf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv',
+      volleym: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv',
+      volleyf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv',
+      basketm: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv',
+      basketf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv',
+      tennis: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv',
+      badminton: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv',
+      pingpong: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv',
+      athletisme: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv',
+      natation: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=130176564&single=true&output=csv',
+      escalade: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=361482653&single=true&output=csv'
+    };
 
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
     }
 
-    async function fetchMatches(sport) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const rows = data.values;
-
-      const matchesContainer = document.getElementById('matches');
-      matchesContainer.innerHTML = '';
-
-      if (!rows || rows.length < 2) {
-        matchesContainer.innerHTML = '<p>Aucun match trouvé.</p>';
-        return;
-      }
-
-      const dataRows = rows.slice(1);
-      dataRows.forEach(row => {
-        const teamA = row[0];
-        const teamB = row[1];
-        const scoreA = row[2];
-        const scoreB = row[3];
-        const date = row[4];
-
-        const matchHTML = `
-          <div class="match">
-            <h3>${sport} - ${date}</h3>
-            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
-          </div>
-        `;
-        matchesContainer.innerHTML += matchHTML;
-      });
-    }
-
-    async function fetchRanking(sport) {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const rows = data.values;
-
-      const classementDiv = document.getElementById('classement-table');
-      classementDiv.innerHTML = '';
-
-      if (!rows || rows.length < 2) {
-        classementDiv.innerHTML = '<p>Aucun classement disponible.</p>';
-        return;
-      }
-
-      const dataRows = rows.slice(1);
-      const points = {};
-
-      dataRows.forEach(row => {
-        const teamA = row[0];
-        const teamB = row[1];
-        const scoreA = parseInt(row[2]);
-        const scoreB = parseInt(row[3]);
-
-        if (!points[teamA]) points[teamA] = 0;
-        if (!points[teamB]) points[teamB] = 0;
-
-        if (scoreA > scoreB) {
-          points[teamA] += 3;
-        } else if (scoreA < scoreB) {
-          points[teamB] += 3;
-        } else {
-          points[teamA] += 1;
-          points[teamB] += 1;
+    function loadSportData(sport) {
+      const url = sheetUrls[sport];
+      Papa.parse(url, {
+        download: true,
+        header: false,
+        complete: function(results) {
+          const data = results.data;
+          const mid = Math.ceil(data.length / 2);
+          const pouleA = data.slice(0, mid);
+          const pouleB = data.slice(mid);
+          renderTable(pouleA, 'poule-a');
+          renderTable(pouleB, 'poule-b');
+          renderTable(data.slice(-3), 'phase-finale');
         }
       });
-
-      const sortedTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
-
-      const table = document.createElement('table');
-      table.innerHTML = `
-        <tr><th>Équipe</th><th>Points</th></tr>
-        ${sortedTeams.map(([team, score]) => `<tr><td>${team}</td><td>${score}</td></tr>`).join('')}
-      `;
-      classementDiv.appendChild(table);
     }
 
+    function renderTable(data, containerId) {
+      const container = document.getElementById(containerId);
+      if (!data || data.length === 0) {
+        container.innerHTML = '<p>Aucune donnée.</p>';
+        return;
+      }
+      let html = '<table><thead><tr>' + data[0].map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+      for (let i = 1; i < data.length; i++) {
+        html += '<tr>' + data[i].map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+      }
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    document.getElementById('sport-selector').addEventListener('change', (e) => {
+      loadSportData(e.target.value);
+    });
+
     // Chargement initial
-    fetchMatches('Rugby');
-    fetchRanking('Rugby');
+    loadSportData('handball');
   </script>
 </body>
 </html>
