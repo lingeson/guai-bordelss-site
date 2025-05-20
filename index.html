@@ -1,196 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GUAI BORDEL'SS 2025 - Résultats et Classements</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; margin: 0; padding: 0; }
+    header { background:#2c3e50; color:#fff; padding:1rem; text-align:center; }
+    nav { display:flex; justify-content:center; background:#34495e; flex-wrap: wrap; }
+    nav button {
+      margin:5px; padding:10px 20px; font-size:16px;
+      background:#ecf0f1; border:none; border-radius:5px; cursor:pointer;
+      transition: background-color 0.3s;
+    }
+    nav button:hover, nav button.active { background:#bdc3c7; }
+    .content { max-width:1000px; margin:auto; padding:1rem; }
+    .section { display:none; }
+    .section.active { display:block; }
+    .filter-buttons {
+      display:flex; justify-content:center; margin-bottom:1rem; flex-wrap:wrap;
+    }
+    .filter-button {
+      margin:5px 10px; padding:8px 15px; font-size:18px; cursor:pointer;
+      background:#ecf0f1; border:none; border-radius:5px;
+      transition: background-color 0.3s;
+    }
+    .filter-button:hover, .filter-button.active { background:#bdc3c7; }
+    table {
+      width:100%; border-collapse:collapse; background:#fff;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom:1rem;
+    }
+    th, td { padding:8px; border:1px solid #ddd; text-align:center; }
+    th { background:#34495e; color:#fff; }
+    .message { text-align:center; font-style:italic; margin-top:1rem; color:#666; }
+    #btn-classement, #btn-phase-finale {
+      margin: 5px 10px; padding: 10px 20px; font-size: 16px;
+      border: none; border-radius: 5px; cursor: pointer;
+      color: white;
+    }
+    #btn-classement { background: #1abc9c; }
+    #btn-phase-finale { background: #e67e22; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>GUAI BORDEL'SS 2025</h1>
+  </header>
 
-html
-<meta charset="UTF-8" />
-<title>GUAI BORDEL'SS 2025 - Résultats et Classements
-body {
-font-family: Arial, sans-serif;
-background: #f4f4f4;
-color: #333;
-margin: 0;
-padding: 0;
-}
-header {
-background: #2c3e50;
-color: #fff;
-padding: 1rem;
-text-align: center;
-}
-nav {
-display: flex;
-justify-content: center;
-background: #34495e;
-flex-wrap: wrap;
-}
-nav button {
-margin: 5px;
-padding: 10px 20px;
-font-size: 16px;
-background: #ecf0f1;
-border: none;
-border-radius: 5px;
-cursor: pointer;
-transition: background-color 0.3s;
-}
-nav button:hover, nav button.active {
-background: #bdc3c7;
-}
-.content {
-max-width: 1000px;
-margin: auto;
-padding: 1rem;
-}
-.section {
-display: none;
-}
-.section.active {
-display: block;
-}
-.filter-buttons {
-display: flex;
-justify-content: center;
-margin-bottom: 1rem;
-flex-wrap: wrap;
-}
-.filter-button {
-margin: 5px 10px;
-padding: 8px 15px;
-font-size: 18px;
-cursor: pointer;
-background: #ecf0f1;
-border: none;
-border-radius: 5px;
-transition: background-color 0.3s;
-}
-.filter-button:hover, .filter-button.active {
-background: #bdc3c7;
-}
-table {
-width: 100%;
-border-collapse: collapse;
-background: #fff;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-margin-bottom: 1rem;
-}
-th, td {
-padding: 8px;
-border: 1px solid #ddd;
-text-align: center;
-}
-th {
-background: #34495e;
-color: #fff;
-}
-.message {
-text-align: center;
-font-style: italic;
-margin-top: 1rem;
-color: #666;
-}
-#btn-classement {
-margin-left: 10px;
-background: #1abc9c;
-color: white;
-cursor: pointer;
-}
-#btn-phase-finale {
-margin-left: 10px;
-background: #e67e22;
-color: white;
-cursor: pointer;
-}
-/* Graphique phase finale */
-.bracket {
-display: flex;
-justify-content: center;
-gap: 40px;
-margin-top: 1rem;
-flex-wrap: wrap;
-}
-.round {
-display: flex;
-flex-direction: column;
-gap: 40px;
-}
-.match {
-background: #ecf0f1;
-padding: 10px;
-border-radius: 6px;
-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-min-width: 180px;
-text-align: center;
-position: relative;
-}
-.match .team {
-padding: 4px 0;
-font-weight: 600;
-}
-.connector {
-width: 20px;
-height: 2px;
-background: #34495e;
-position: absolute;
-top: 50%;
-left: -20px;
-}
-.connector.vertical {
-width: 2px;
-height: 40px;
-background: #34495e;
-left: -21px;
-top: 50%;
-transform: translateY(-50%);
-}
-</style>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"><body>
-<header>
-GUAI BORDEL'SS 2025
-<section id="resultats" class="section active">
-Résultats des matchsAfficher classementAfficher phase finaleVeuillez choisir un sport et un type de match.
-const sports = {
-handball: {
-nom: "Handball",
-emoji: "🤾‍♂️",
-urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv"
-},
-rugby: {
-nom: "Rugby",
-emoji: "🏉",
-urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
-}
-// Ajouter d'autres sports ici si nécessaire
-};
-const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
-let sportSelectionne = null;
-let typeMatchSelectionne = null;
-let dataCSV = null;
-// Onglets sports dans nav
-function createSportTabs() {
-const nav = document.getElementById('nav-sports');
-nav.innerHTML = '';
-Object.entries(sports).forEach(([key, sport], index) => {
-const btn = document.createElement('button');
-btn.textContent = ${sport.emoji} ${sport.nom};
-btn.onclick = () => {
-sportSelectionne = key;
-typeMatchSelectionne = null;
-dataCSV = null;
-clearTypeMatchButtons();
-document.getElementById('container-resultats').innerHTML = 'Chargement des données...';
-loadCSVData(key);
-setActiveButton(nav, btn);
-hideBoutons();
-};
-if(index === 0) {
-btn.classList.add('active');
-sportSelectionne = key;
-loadCSVData(key);
-}
-nav.appendChild(btn);
-});
-}
-function setActiveButton(container, activeBtn) {
-[...container.children].forEach(b => b.classList.remove('active'));
-activeBtn.classList.add('active');
-}
-// (autres fonctions de traitement nécessaires ici)
-</script>
+  <nav id="nav-sports"></nav>
+
+  <div class="content">
+    <section id="resultats" class="section active">
+      <h2>Résultats des matchs</h2>
+      <div class="filter-buttons" id="buttons-type-match"></div>
+      <button id="btn-classement" style="display:none;">Afficher classement</button>
+      <button id="btn-phase-finale" style="display:none;">Afficher phase finale</button>
+      <div id="container-resultats" class="message">Veuillez choisir un sport et un type de match.</div>
+    </section>
+  </div>
+
+  <script>
+    const sports = {
+      handball: {
+        nom: "Handball",
+        emoji: "🤾‍♂️",
+        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv"
+      },
+      rugby: {
+        nom: "Rugby",
+        emoji: "🏉",
+        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
+      }
+    };
+
+    const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
+    let sportSelectionne = null;
+    let typeMatchSelectionne = null;
+    let dataCSV = null;
+
+    const nav = document.getElementById('nav-sports');
+    const btnsTypeMatch = document.getElementById('buttons-type-match');
+    const container = document.getElementById('container-resultats');
+    const btnClassement = document.getElementById('btn-classement');
+    const btnPhaseFinale = document.getElementById('btn-phase-finale');
+
+    function createSportTabs() {
+      Object.entries(sports).forEach(([key, sport]) => {
+        const btn = document.createElement('button');
+        btn.textContent = `${sport.emoji} ${sport.nom}`;
+        btn.onclick = () => {
+          sportSelectionne = key;
+          dataCSV = null;
+          typeMatchSelectionne = null;
+          [...nav.children].forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          btnsTypeMatch.innerHTML = '';
+          container.innerHTML = 'Chargement des données...';
+          fetchCSVData(sports[key].urlCSV);
+        };
+        nav.appendChild(btn);
+      });
+    }
+
+    function fetchCSVData(url) {
+      fetch(url)
+        .then(resp => resp.text())
+        .then(csv => {
+          const parsed = Papa.parse(csv.trim(), { skipEmptyLines: true });
+          dataCSV = parsed.data;
+          updateTypeButtons();
+        })
+        .catch(err => {
+          container.innerHTML = "Erreur de chargement des données.";
+          console.error(err);
+        });
+    }
+
+    function updateTypeButtons() {
+      const idxType = dataCSV[0].findIndex(h => h.toLowerCase().includes('type de match'));
+      const types = [...new Set(dataCSV.slice(1).map(row => row[idxType]))].filter(Boolean);
+      btnsTypeMatch.innerHTML = '';
+      types.forEach(type => {
+        const b = document.createElement('button');
+        b.className = 'filter-button';
+        b.textContent = type;
+        b.onclick = () => {
+          [...btnsTypeMatch.children].forEach(b => b.classList.remove('active'));
+          b.classList.add('active');
+          typeMatchSelectionne = type;
+          showResults(type);
+        };
+        btnsTypeMatch.appendChild(b);
+      });
+      container.innerHTML = 'Veuillez choisir un type de match.';
+      hideControls();
+    }
+
+    function showResults(type) {
+      const headers = dataCSV[0];
+      const idxType = headers.findIndex(h => h.toLowerCase().includes('type de match'));
+      const filtered = dataCSV.slice(1).filter(row => row[idxType] === type);
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="message">Aucun match trouvé pour ce type.</div>`;
+        hideControls();
+        return;
+      }
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+      filtered.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = row.map(cell => `<td>${cell}</td>`).join('');
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      container.innerHTML = '';
+      container.appendChild(table);
+
+      showControlsIfApplicable(type);
+    }
+
+    function hideControls() {
+      btnClassement.style.display = 'none';
+      btnPhaseFinale.style.display = 'none';
+    }
+
+    function showControlsIfApplicable(type) {
+      if (type === 'Poule A' || type === 'Poule B') {
+        btnClassement.style.display = 'inline-block';
+      } else {
+        btnClassement.style.display = 'none';
+      }
+      if (type === 'Demi-finale' || type === 'Finale') {
+        btnPhaseFinale.style.display = 'inline-block';
+      } else {
+        btnPhaseFinale.style.display = 'none';
+      }
+    }
+
+    // Initialisation
+    createSportTabs();
+  </script>
+</body>
+</html>
