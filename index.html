@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GUAI BORDEL'SS 2025</title>
   <style>
     body {
@@ -132,7 +132,7 @@
         emoji: "🤾‍♂️",
         resultats: {
           A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv",
-          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=111111111&single=true&output=csv" // Remplacer par le vrai lien poule B si disponible
+          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=111111111&single=true&output=csv"
         },
         phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv"
       },
@@ -141,11 +141,11 @@
         emoji: "🏉",
         resultats: {
           A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv",
-          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=222222222&single=true&output=csv" // Remplacer par le vrai lien poule B si disponible
+          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=222222222&single=true&output=csv"
         },
         phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
-      },
-      // Ajouter ici les autres sports avec leurs liens CSV
+      }
+      // Ajouter d'autres sports ici si besoin
     };
 
     function showSection(id) {
@@ -153,7 +153,6 @@
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById('btn-' + id).classList.add('active');
-      // Reset sélection dans résultats et phases finales si besoin
       if (id === 'resultats') {
         resetResultatsSelection();
       } else if (id === 'phase-finale') {
@@ -163,7 +162,6 @@
 
     function parseCSV(csvText) {
       return csvText.trim().split('\n').map(line => {
-        // Pour gérer des cellules contenant des virgules, on pourrait améliorer avec une vraie lib CSV mais ici simple split
         return line.split(',').map(cell => cell.trim());
       });
     }
@@ -190,10 +188,16 @@
       });
     }
 
-    function createPouleButtons(containerId, onClick) {
+    // Nouvelle fonction : crée boutons poules d'après keys disponibles dans resultats du sport
+    function createPouleButtonsDynamic(containerId, sportKey, onClick) {
       const container = document.getElementById(containerId);
       container.innerHTML = '';
-      ['A', 'B'].forEach(poule => {
+      const poules = Object.keys(sports[sportKey].resultats);
+      if (poules.length === 0) {
+        container.innerHTML = 'Aucune poule disponible.';
+        return;
+      }
+      poules.forEach(poule => {
         const btn = document.createElement('button');
         btn.className = 'poule-button';
         btn.innerText = 'Poule ' + poule;
@@ -263,7 +267,6 @@
     let pouleSelectionnee = null;
 
     function resetResultatsSelection() {
-      // Reset boutons et message
       document.getElementById('buttons-resultats').querySelectorAll('button').forEach(b => b.classList.remove('active'));
       document.getElementById('buttons-poules-resultats').innerHTML = '';
       document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un sport et une poule.';
@@ -280,11 +283,10 @@
     createSportButtons('buttons-resultats', sportKey => {
       sportSelectionne = sportKey;
       pouleSelectionnee = null;
-      createPouleButtons('buttons-poules-resultats', poule => {
+      createPouleButtonsDynamic('buttons-poules-resultats', sportKey, poule => {
         pouleSelectionnee = poule;
         afficherResultats(sportKey, poule);
       });
-      // Reset message container
       document.getElementById('container-resultats').innerHTML = 'Veuillez choisir une poule.';
     });
 
