@@ -1,144 +1,128 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GUAI BORDEL'SS 2025</title>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    header { background-color: #4CAF50; color: white; padding: 10px 20px; text-align: center; }
-    nav { display: flex; justify-content: center; gap: 10px; background-color: #f1f1f1; padding: 10px; }
-    nav button { padding: 10px 20px; cursor: pointer; }
-    .active { background-color: #4CAF50; color: white; }
-    #sport-selector { margin: 10px auto; display: block; padding: 10px; }
-    .tab-content { display: none; padding: 20px; }
-    .tab-content.active { display: block; }
-    .columns { display: flex; justify-content: space-between; gap: 20px; }
-    .column { flex: 1; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #f2f2f2; }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>GUAI BORDEL'SS 2025</h1>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GUAI BORDEL'SS 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  </head>
+  <body class="bg-gray-100 text-gray-900">
+    <header class="bg-blue-700 text-white p-4 text-center text-2xl font-bold">
+      GUAI BORDEL'SS 2025
+    </header>
 
-  <select id="sport-selector">
-    <option value="handball">Handball</option>
-    <option value="rugby">Rugby</option>
-    <option value="footm">Foot M</option>
-    <option value="footf">Foot F</option>
-    <option value="volleym">Volley M</option>
-    <option value="volleyf">Volley F</option>
-    <option value="basketm">Basket M</option>
-    <option value="basketf">Basket F</option>
-    <option value="tennis">Tennis</option>
-    <option value="badminton">Badminton</option>
-    <option value="pingpong">Ping-pong</option>
-    <option value="athletisme">Athlétisme</option>
-    <option value="natation">Natation</option>
-    <option value="escalade">Escalade</option>
-  </select>
+    <nav class="flex flex-wrap justify-center gap-4 p-4 bg-blue-100">
+      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="football">Football</button>
+      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="basket">Basket</button>
+      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="volley">Volley</button>
+    </nav>
 
-  <nav>
-    <button onclick="showTab('poules')" class="active">Résultats poules</button>
-    <button onclick="showTab('phase')">Phase finale</button>
-    <button onclick="showTab('contacts')">Contacts urgence</button>
-  </nav>
+    <main id="content" class="p-4 max-w-4xl mx-auto">
+      <p class="text-center text-lg">Choisissez un sport pour voir les résultats.</p>
+    </main>
 
-  <div id="poules" class="tab-content active">
-    <div class="columns">
-      <div class="column">
-        <h2>Poule A</h2>
-        <div id="poule-a"></div>
-      </div>
-      <div class="column">
-        <h2>Poule B</h2>
-        <div id="poule-b"></div>
-      </div>
-    </div>
-  </div>
+    <script>
+      const content = document.getElementById("content");
 
-  <div id="phase" class="tab-content">
-    <h2>Phase finale</h2>
-    <div id="phase-finale"></div>
-  </div>
+      const csvUrls = {
+        football: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1216694082&single=true&output=csv",
+        basket: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1829432646&single=true&output=csv",
+        volley: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1819401989&single=true&output=csv",
+      };
 
-  <div id="contacts" class="tab-content">
-    <h2>Contacts d'urgence</h2>
-    <ul>
-      <li>Pompiers : 18</li>
-      <li>Police : 17</li>
-      <li>SAMU : 15</li>
-      <li>Numéro d'urgence européen : 112</li>
-    </ul>
-  </div>
-
-  <script>
-    const sheetUrls = {
-      handball: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv',
-      rugby: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv',
-      footm: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv',
-      footf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv',
-      volleym: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv',
-      volleyf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv',
-      basketm: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv',
-      basketf: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv',
-      tennis: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv',
-      badminton: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv',
-      pingpong: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv',
-      athletisme: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv',
-      natation: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=130176564&single=true&output=csv',
-      escalade: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=361482653&single=true&output=csv'
-    };
-
-    function showTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-    }
-
-    function loadSportData(sport) {
-      const url = sheetUrls[sport];
-      Papa.parse(url, {
-        download: true,
-        header: false,
-        complete: function(results) {
-          const data = results.data;
-          const mid = Math.ceil(data.length / 2);
-          const pouleA = data.slice(0, mid);
-          const pouleB = data.slice(mid);
-          renderTable(pouleA, 'poule-a');
-          renderTable(pouleB, 'poule-b');
-          renderTable(data.slice(-3), 'phase-finale');
-        }
+      document.querySelectorAll(".sport-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const sport = btn.dataset.sport;
+          fetchAndDisplayResults(sport);
+        });
       });
-    }
 
-    function renderTable(data, containerId) {
-      const container = document.getElementById(containerId);
-      if (!data || data.length === 0) {
-        container.innerHTML = '<p>Aucune donnée.</p>';
-        return;
+      function fetchAndDisplayResults(sport) {
+        content.innerHTML = `<p class="text-center text-lg">Chargement des résultats pour ${sport}...</p>`;
+        const url = csvUrls[sport];
+
+        Papa.parse(url, {
+          download: true,
+          header: true,
+          complete: function (results) {
+            const data = results.data.filter(row => row.Equipe1 && row.Equipe2);
+            renderResults(sport, data);
+          },
+        });
       }
-      let html = '<table><thead><tr>' + data[0].map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-      for (let i = 1; i < data.length; i++) {
-        html += '<tr>' + data[i].map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+
+      function renderResults(sport, matches) {
+        content.innerHTML = `<h2 class="text-xl font-bold mb-4">Résultats - ${sport}</h2>`;
+
+        const table = document.createElement("table");
+        table.className = "table-auto w-full text-sm text-left bg-white rounded shadow overflow-hidden";
+
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+          <tr class="bg-blue-200">
+            <th class="p-2">Equipe 1</th>
+            <th class="p-2">Score</th>
+            <th class="p-2">Equipe 2</th>
+          </tr>
+        `;
+
+        const tbody = document.createElement("tbody");
+
+        for (const match of matches) {
+          const row = document.createElement("tr");
+          row.className = "border-t hover:bg-blue-50";
+
+          const score1 = match.Score1 || "-";
+          const score2 = match.Score2 || "-";
+
+          row.innerHTML = `
+            <td class="p-2">${match.Equipe1}</td>
+            <td class="p-2 text-center">${score1} - ${score2}</td>
+            <td class="p-2">${match.Equipe2}</td>
+          `;
+          tbody.appendChild(row);
+        }
+
+        table.appendChild(thead);
+        table.appendChild(tbody);
+        content.appendChild(table);
+
+        // Générer les phases finales si nécessaire
+        if (matches.length >= 4) {
+          const finalists = calculateFinalists(matches);
+          renderFinalPhases(finalists);
+        }
       }
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    }
 
-    document.getElementById('sport-selector').addEventListener('change', (e) => {
-      loadSportData(e.target.value);
-    });
+      function calculateFinalists(matches) {
+        const scores = {};
+        matches.forEach(({ Equipe1, Equipe2, Score1, Score2 }) => {
+          const s1 = parseInt(Score1);
+          const s2 = parseInt(Score2);
+          if (!isNaN(s1) && !isNaN(s2)) {
+            scores[Equipe1] = (scores[Equipe1] || 0) + (s1 > s2 ? 3 : s1 === s2 ? 1 : 0);
+            scores[Equipe2] = (scores[Equipe2] || 0) + (s2 > s1 ? 3 : s1 === s2 ? 1 : 0);
+          }
+        });
+        return Object.entries(scores)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 4)
+          .map(([team]) => team);
+      }
 
-    // Chargement initial
-    loadSportData('handball');
-  </script>
-</body>
+      function renderFinalPhases(teams) {
+        const bracket = document.createElement("div");
+        bracket.className = "mt-8 p-4 bg-gray-200 rounded";
+        bracket.innerHTML = `<h3 class="text-lg font-semibold mb-2">Phases Finales</h3>
+          <p>Demi-finales :</p>
+          <ul class="list-disc ml-5">
+            <li>${teams[0]} vs ${teams[3]}</li>
+            <li>${teams[1]} vs ${teams[2]}</li>
+          </ul>
+        `;
+        content.appendChild(bracket);
+      }
+    </script>
+  </body>
 </html>
