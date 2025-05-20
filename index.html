@@ -1,523 +1,196 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GUAI BORDEL'SS 2025 - Résultats et Classements</title>
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; margin: 0; padding: 0; }
-    header { background:#2c3e50; color:#fff; padding:1rem; text-align:center; }
-    nav { display:flex; justify-content:center; background:#34495e; flex-wrap: wrap; }
-    nav button {
-      margin:5px; padding:10px 20px; font-size:16px;
-      background:#ecf0f1; border:none; border-radius:5px; cursor:pointer;
-      transition: background-color 0.3s;
-    }
-    nav button:hover, nav button.active { background:#bdc3c7; }
-    .content { max-width:1000px; margin:auto; padding:1rem; }
-    .section { display:none; }
-    .section.active { display:block; }
-    .filter-buttons {
-      display:flex; justify-content:center; margin-bottom:1rem; flex-wrap:wrap;
-    }
-    .filter-button {
-      margin:5px 10px; padding:8px 15px; font-size:18px; cursor:pointer;
-      background:#ecf0f1; border:none; border-radius:5px;
-      transition: background-color 0.3s;
-    }
-    .filter-button:hover, .filter-button.active { background:#bdc3c7; }
-    table {
-      width:100%; border-collapse:collapse; background:#fff;
-      box-shadow:0 2px 4px rgba(0,0,0,0.1);
-      margin-bottom:1rem;
-    }
-    th, td { padding:8px; border:1px solid #ddd; text-align:center; }
-    th { background:#34495e; color:#fff; }
-    .message { text-align:center; font-style:italic; margin-top:1rem; color:#666; }
-    #btn-classement { margin-left:10px; background:#1abc9c; color:white; cursor:pointer; }
-    #btn-phase-finale { margin-left:10px; background:#e67e22; color:white; cursor:pointer; }
-    /* Graphique phase finale */
-    .bracket {
-      display:flex; justify-content:center; gap:40px;
-      margin-top:1rem; flex-wrap: wrap;
-    }
-    .round {
-      display:flex; flex-direction: column; gap:40px;
-    }
-    .match {
-      background:#ecf0f1; padding:10px; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.1);
-      min-width:180px; text-align:center; position: relative;
-    }
-    .match .team {
-      padding:4px 0;
-      font-weight: 600;
-    }
-    .connector {
-      width: 20px; height: 2px; background: #34495e; position: absolute;
-      top: 50%; left: -20px;
-    }
-    .connector.vertical {
-      width: 2px; height: 40px; background: #34495e; left: -21px; top: 50%; transform: translateY(-50%);
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-</head>
-<body>
-  <header>
-    <h1>GUAI BORDEL'SS 2025</h1>
-  </header>
 
-  <nav id="nav-sports"></nav>
-
-  <div class="content">
-    <section id="resultats" class="section active">
-      <h2>Résultats des matchs</h2>
-      <div class="filter-buttons" id="buttons-type-match"></div>
-      <button id="btn-classement" style="display:none;">Afficher classement</button>
-      <button id="btn-phase-finale" style="display:none;">Afficher phase finale</button>
-      <div id="container-resultats" class="message">Veuillez choisir un sport et un type de match.</div>
-    </section>
-  </div>
-
-  <script>
-    const sports = {
-      handball: {
-        nom: "Handball",
-        emoji: "🤾‍♂️",
-        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv"
-      },
-      rugby: {
-        nom: "Rugby",
-        emoji: "🏉",
-        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
-      }
-      // Ajouter d'autres sports ici si nécessaire
-    };
-
-    const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
-
-    let sportSelectionne = null;
-    let typeMatchSelectionne = null;
-    let dataCSV = null;
-
-    // Onglets sports dans nav
-    function createSportTabs() {
-      const nav = document.getElementById('nav-sports');
-      nav.innerHTML = '';
-      Object.entries(sports).forEach(([key, sport], index) => {
-        const btn = document.createElement('button');
-        btn.textContent = `${sport.emoji} ${sport.nom}`;
-        btn.onclick = () => {
-          sportSelectionne = key;
-          typeMatchSelectionne = null;
-          dataCSV = null;
-          clearTypeMatchButtons();
-          document.getElementById('container-resultats').innerHTML = 'Chargement des données...';
-          loadCSVData(key);
-          setActiveButton(nav, btn);
-          hideBoutons();
-        };
-        if(index === 0) {
-          btn.classList.add('active');
-          sportSelectionne = key;
-          loadCSVData(key);
-        }
-        nav.appendChild(btn);
-      });
-    }
-
-    function setActiveButton(container, activeBtn) {
-      [...container.children].forEach(b => b.classList.remove('active'));
-      activeBtn.classList.add('active');
-    }
-
-    function clearTypeMatchButtons() {
-      const container = document.getElementById('buttons-type-match');
-      container.innerHTML = '';
-    }
-
-    function createTypeMatchButtons(types) {
-      const container = document.getElementById('buttons-type-match');
-      container.innerHTML = '';
-      types.forEach(type => {
-        const btn = document.createElement('button');
-        btn.className = 'filter-button';
-        btn.textContent = type;
-        btn.onclick = () => {
-          typeMatchSelectionne = type;
-          setActiveButton(container, btn);
-          afficherResultatsFiltrees();
-          showBoutons();
-        };
-        container.appendChild(btn);
-      });
-    }
-
-    async function loadCSVData(sportKey) {
-      const url = sports[sportKey].urlCSV;
-      try {
-        const response = await fetch(url);
-        if(!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
-        const text = await response.text();
-        const parsed = Papa.parse(text, {skipEmptyLines:true});
-        dataCSV = parsed.data;
-
-        // Colonnes (insensitive)
-        const headers = dataCSV[0].map(h => h.trim().toLowerCase());
-        const idxTypeMatch = headers.findIndex(h => h === 'type de match');
-        if(idxTypeMatch === -1) {
-          document.getElementById('container-resultats').innerHTML = 'Colonne "Type de match" introuvable dans la source.';
-          clearTypeMatchButtons();
-          hideBoutons();
-          return;
-        }
-
-        // Types de match uniques présents
-        const typesTrouves = [...new Set(dataCSV.slice(1).map(row => (row[idxTypeMatch] || '').trim()))].filter(t => t);
-        const typesTries = typesMatchs.filter(t => typesTrouves.includes(t)).concat(typesTrouves.filter(t => !typesMatchs.includes(t)));
-
-        if(typesTries.length === 0) {
-          document.getElementById('container-resultats').innerHTML = 'Aucun type de match trouvé.';
-          clearTypeMatchButtons();
-          hideBoutons();
-          return;
-        }
-
-        createTypeMatchButtons(typesTries);
-        document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un type de match.';
-        hideBoutons();
-      }
-      catch(e) {
-        document.getElementById('container-resultats').innerHTML = 'Erreur lors du chargement des données.';
-        clearTypeMatchButtons();
-        hideBoutons();
-        console.error(e);
-      }
-    }
-
-    function afficherResultatsFiltrees() {
-      if(!dataCSV || !sportSelectionne || !typeMatchSelectionne) {
-        document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un sport et un type de match.';
-        return;
-      }
-      const headers = dataCSV[0];
-      const headersLower = headers.map(h => h.toLowerCase().trim());
-      const idxTypeMatch = headersLower.indexOf('type de match');
-      if(idxTypeMatch === -1) {
-        document.getElementById('container-resultats').innerHTML = 'Colonne "Type de match" introuvable.';
-        return;
-      }
-      // Filtrage
-      const lignesFiltres = dataCSV.slice(1).filter(row => (row[idxTypeMatch]||'').trim() === typeMatchSelectionne);
-
-      if(lignesFiltres.length === 0) {
-        document.getElementById('container-resultats').innerHTML = `Aucun résultat trouvé pour "${typeMatchSelectionne}".`;
-        return;
-      }
-
-      let html = '<table><thead><tr>';
-      headers.forEach(h => { html += `<th>${h}</th ;
-      }
-      ); 
-      html += '</tr></thead><tbody>';
-      lignesFiltres.forEach(row => {
-        html += '<tr>';
-        row.forEach(cell => html += <td>${cell}</td>`);
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-
-  document.getElementById('container-resultats').innerHTML = html;
+html
+<meta charset="UTF-8" />
+<title>GUAI BORDEL'SS 2025 - Résultats et Classements
+body {
+font-family: Arial, sans-serif;
+background: #f4f4f4;
+color: #333;
+margin: 0;
+padding: 0;
 }
-
-// Boutons classement / phase finale
-function showBoutons() {
-  const btnClass = document.getElementById('btn-classement');
-  const btnPhase = document.getElementById('btn-phase-finale');
-  btnClass.style.display = 'inline-block';
-  btnPhase.style.display = 'inline-block';
+header {
+background: #2c3e50;
+color: #fff;
+padding: 1rem;
+text-align: center;
 }
-function hideBoutons() {
-  document.getElementById('btn-classement').style.display = 'none';
-  document.getElementById('btn-phase-finale').style.display = 'none';
+nav {
+display: flex;
+justify-content: center;
+background: #34495e;
+flex-wrap: wrap;
 }
-
-// Calcul du classement pour type de match sélectionné
-function calculerClassement() {
-  if(!dataCSV || !typeMatchSelectionne) {
-    alert('Choisissez un type de match.');
-    return;
-  }
-  const headers = dataCSV[0].map(h => h.trim().toLowerCase());
-  const idxTypeMatch = headers.indexOf('type de match');
-  const idxEquipeA = headers.indexOf('équipe a');
-  const idxEquipeB = headers.indexOf('équipe b');
-  const idxScoreA = headers.indexOf('score a');
-  const idxScoreB = headers.indexOf('score b');
-
-  if([idxEquipeA, idxEquipeB, idxScoreA, idxScoreB, idxTypeMatch].some(i => i === -1)) {
-    alert('Colonnes nécessaires introuvables pour calcul du classement.');
-    return;
-  }
-
-  const matchsFiltres = dataCSV.slice(1).filter(row => (row[idxTypeMatch] || '').trim() === typeMatchSelectionne);
-  if(matchsFiltres.length === 0) {
-    alert('Aucun match dans ce type pour calcul du classement.');
-    return;
-  }
-
-  // Calcul stats par équipe
-  const statsEquipes = {};
-  function initEquipe(e) {
-    if(!statsEquipes[e]) {
-      statsEquipes[e] = {joues:0, victoire:0, nul:0, defaite:0, points:0, butsPour:0, butsContre:0};
-    }
-  }
-
-  matchsFiltres.forEach(row => {
-    const eA = row[idxEquipeA].trim();
-    const eB = row[idxEquipeB].trim();
-    const sA = parseInt(row[idxScoreA]);
-    const sB = parseInt(row[idxScoreB]);
-    if(isNaN(sA) || isNaN(sB)) return;
-
-    initEquipe(eA);
-    initEquipe(eB);
-
-    statsEquipes[eA].joues++;
-    statsEquipes[eB].joues++;
-
-    statsEquipes[eA].butsPour += sA;
-    statsEquipes[eA].butsContre += sB;
-    statsEquipes[eB].butsPour += sB;
-    statsEquipes[eB].butsContre += sA;
-
-    if(sA > sB) {
-      statsEquipes[eA].victoire++;
-      statsEquipes[eA].points += 3;
-      statsEquipes[eB].defaite++;
-    }
-    else if(sA < sB) {
-      statsEquipes[eB].victoire++;
-      statsEquipes[eB].points += 3;
-      statsEquipes[eA].defaite++;
-    }
-    else {
-      statsEquipes[eA].nul++;
-      statsEquipes[eA].points += 1;
-      statsEquipes[eB].nul++;
-      statsEquipes[eB].points += 1;
-    }
-  });
-
-  // Trier classement
-  let classementArray = Object.entries(statsEquipes).map(([equipe, stats]) => ({
-    equipe,
-    joues: stats.joues,
-    victoire: stats.victoire,
-    nul: stats.nul,
-    defaite: stats.defaite,
-    points: stats.points,
-    butsPour: stats.butsPour,
-    butsContre: stats.butsContre,
-    difference: stats.butsPour - stats.butsContre
-  }));
-
-  classementArray.sort((a,b) => {
-    if(b.points !== a.points) return b.points - a.points;
-    if(b.difference !== a.difference) return b.difference - a.difference;
-    return b.butsPour - a.butsPour;
-  });
-
-  // Afficher classement
-  let html = `<h3>Classement - ${typeMatchSelectionne}</h3>`;
-  html += '<table><thead><tr>';
-  html += '<th>Équipe</th><th>J</th><th>V</th><th>N</th><th>D</th><th>Pts</th><th>BP</th><th>BC</th><th>Diff</th>';
-  html += '</tr></thead><tbody>';
-  classementArray.forEach(c => {
-    html += `<tr>
-      <td>${c.equipe}</td>
-      <td>${c.joues}</td>
-      <td>${c.victoire}</td>
-      <td>${c.nul}</td>
-      <td>${c.defaite}</td>
-      <td>${c.points}</td>
-      <td>${c.butsPour}</td>
-      <td>${c.butsContre}</td>
-      <td>${c.difference}</td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-
-  document.getElementById('container-resultats').innerHTML = html;
-
-  // Stocker le classement pour phase finale
-  window.classementActuel = classementArray;
+nav button {
+margin: 5px;
+padding: 10px 20px;
+font-size: 16px;
+background: #ecf0f1;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s;
 }
-
-// Génération phase finale automatique
-function genererPhaseFinale() {
-  const classement = window.classementActuel;
-  if(!classement || classement.length === 0) {
-    alert('Calculez d’abord le classement avant de générer la phase finale.');
-    return;
-  }
-  // On suppose que typeMatchSelectionne est "Poule A" ou "Poule B"
-  // On doit avoir au moins Poule A et Poule B calculés. On va chercher dans les deux poules.
-  if(!['Poule A','Poule B'].includes(typeMatchSelectionne)) {
-    alert('Génération phase finale possible uniquement depuis classement des poules A ou B.');
-    return;
-  }
-
-  // Pour cette démo, on va supposer que classementActuel contient uniquement la poule sélectionnée
-  // Il faut charger aussi l’autre poule pour faire phase finale
-  // Solution simple : on recharge les deux poules et on fait le match 1erA vs 2eB et 1erB vs 2eA
-
-  Promise.all([
-    chargerClassementPoule('Poule A'),
-    chargerClassementPoule('Poule B')
-  ]).then(([classementA, classementB]) => {
-    if(classementA.length < 2 || classementB.length < 2) {
-      alert('Pas assez d\'équipes dans les poules pour générer la phase finale.');
-      return;
-    }
-
-    // Demi-finales
-    const demiFinales = [
-      { equipe1: classementA[0].equipe, equipe2: classementB[1].equipe, score1: null, score2: null },
-      { equipe1: classementB[0].equipe, equipe2: classementA[1].equipe, score1: null, score2: null },
-    ];
-
-    // Affichage simple avec possibilité d'ajouter scores plus tard (pour démo on mettra des scores fictifs)
-    // Mettre scores fictifs ou demander à l'utilisateur ?
-    demiFinales[0].score1 = 25;
-    demiFinales[0].score2 = 22;
-    demiFinales[1].score1 = 28;
-    demiFinales[1].score2 = 30;
-
-    // Finalistes
-    const finalistes = [
-      demiFinales[0].score1 > demiFinales[0].score2 ? demiFinales[0].equipe1 : demiFinales[0].equipe2,
-      demiFinales[1].score1 > demiFinales[1].score2 ? demiFinales[1].equipe1 : demiFinales[1].equipe2,
-    ];
-
-    // Final
-    const finale = { equipe1: finalistes[0], equipe2: finalistes[1], score1: null, score2: null };
-    finale.score1 = 27;
-    finale.score2 = 29;
-
-    afficherPhaseFinale(demiFinales, finale);
-  }).catch(e => {
-    alert('Erreur lors du chargement des classements pour phase finale.');
-    console.error(e);
-  });
+nav button:hover, nav button.active {
+background: #bdc3c7;
 }
-
-// Charger classement d'une poule (Poule A ou B)
-async function chargerClassementPoule(poule) {
-  const headers = dataCSV[0].map(h => h.trim().toLowerCase());
-  const idxTypeMatch = headers.indexOf('type de match');
-  const idxEquipeA = headers.indexOf('équipe a');
-  const idxEquipeB = headers.indexOf('équipe b');
-  const idxScoreA = headers.indexOf('score a');
-  const idxScoreB = headers.indexOf('score b');
-
-  const matchsFiltres = dataCSV.slice(1).filter(row => (row[idxTypeMatch] || '').trim() === poule);
-  // Calcul comme dans calculerClassement()
-  const statsEquipes = {};
-  function initEquipe(e) {
-    if(!statsEquipes[e]) {
-      statsEquipes[e] = {joues:0, victoire:0, nul:0, defaite:0, points:0, butsPour:0, butsContre:0};
-    }
-  }
-  matchsFiltres.forEach(row => {
-    const eA = row[idxEquipeA].trim();
-    const eB = row[idxEquipeB].trim();
-    const sA = parseInt(row[idxScoreA]);
-    const sB = parseInt(row[idxScoreB]);
-    if(isNaN(sA) || isNaN(sB)) return;
-    initEquipe(eA);
-    initEquipe(eB);
-    statsEquipes[eA].joues++;
-    statsEquipes[eB].joues++;
-    statsEquipes[eA].butsPour += sA;
-    statsEquipes[eA].butsContre += sB;
-    statsEquipes[eB].butsPour += sB;
-    statsEquipes[eB].butsContre += sA;
-    if(sA > sB) {
-      statsEquipes[eA].victoire++;
-      statsEquipes[eA].points += 3;
-      statsEquipes[eB].defaite++;
-    }
-    else if(sA < sB) {
-      statsEquipes[eB].victoire++;
-      statsEquipes[eB].points += 3;
-      statsEquipes[eA].defaite++;
-    }
-    else {
-      statsEquipes[eA].nul++;
-      statsEquipes[eA].points += 1;
-      statsEquipes[eB].nul++;
-      statsEquipes[eB].points += 1;
-    }
-  });
-  let classementArray = Object.entries(statsEquipes).map(([equipe, stats]) => ({
-    equipe,
-    points: stats.points,
-    difference: stats.butsPour - stats.butsContre,
-    butsPour: stats.butsPour,
-  }));
-  classementArray.sort((a,b) => {
-    if(b.points !== a.points) return b.points - a.points;
-    if(b.difference !== a.difference) return b.difference - a.difference;
-    return b.butsPour - a.butsPour;
-  });
-  return classementArray;
+.content {
+max-width: 1000px;
+margin: auto;
+padding: 1rem;
 }
-
-// Affichage phase finale graphique
-function afficherPhaseFinale(demiFinales, finale) {
-  let html = '<h3>Phase Finale</h3>';
-  html += '<div class="bracket">';
-
-  // Demi-finales
-  html += '<div class="round">';
-  html += '<h4>Demi-finales</h4>';
-  demiFinales.forEach((match, i) => {
-    html += `<div class="match">
-      <div class="team">${match.equipe1} <strong>${match.score1 !== null ? match.score1 : ''}</strong></div>
-      <div class="team">${match.equipe2} <strong>${match.score2 !== null ? match.score2 : ''}</strong></div>
-    </div>`;
-  });
-  html += '</div>';
-
-  // Finale
-  html += '<div class="round">';
-  html += '<h4>Finale</h4>';
-  html += `<div class="match">
-      <div class="team">${finale.equipe1} <strong>${finale.score1 !== null ? finale.score1 : ''}</strong></div>
-      <div class="team">${finale.equipe2} <strong>${finale.score2 !== null ? finale.score2 : ''}</strong></div>
-  </div>`;
-  html += '</div>';
-
-  html += '</div>';
-  document.getElementById('container-resultats').innerHTML = html;
+.section {
+display: none;
 }
-
-// Initialisation des boutons
-document.getElementById('btn-classement').onclick = calculerClassement;
-document.getElementById('btn-phase-finale').onclick = genererPhaseFinale;
-
-createSportTabs();
-
-
-
-
-
-
-
-
-
-
-
-
+.section.active {
+display: block;
+}
+.filter-buttons {
+display: flex;
+justify-content: center;
+margin-bottom: 1rem;
+flex-wrap: wrap;
+}
+.filter-button {
+margin: 5px 10px;
+padding: 8px 15px;
+font-size: 18px;
+cursor: pointer;
+background: #ecf0f1;
+border: none;
+border-radius: 5px;
+transition: background-color 0.3s;
+}
+.filter-button:hover, .filter-button.active {
+background: #bdc3c7;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+background: #fff;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+margin-bottom: 1rem;
+}
+th, td {
+padding: 8px;
+border: 1px solid #ddd;
+text-align: center;
+}
+th {
+background: #34495e;
+color: #fff;
+}
+.message {
+text-align: center;
+font-style: italic;
+margin-top: 1rem;
+color: #666;
+}
+#btn-classement {
+margin-left: 10px;
+background: #1abc9c;
+color: white;
+cursor: pointer;
+}
+#btn-phase-finale {
+margin-left: 10px;
+background: #e67e22;
+color: white;
+cursor: pointer;
+}
+/* Graphique phase finale */
+.bracket {
+display: flex;
+justify-content: center;
+gap: 40px;
+margin-top: 1rem;
+flex-wrap: wrap;
+}
+.round {
+display: flex;
+flex-direction: column;
+gap: 40px;
+}
+.match {
+background: #ecf0f1;
+padding: 10px;
+border-radius: 6px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+min-width: 180px;
+text-align: center;
+position: relative;
+}
+.match .team {
+padding: 4px 0;
+font-weight: 600;
+}
+.connector {
+width: 20px;
+height: 2px;
+background: #34495e;
+position: absolute;
+top: 50%;
+left: -20px;
+}
+.connector.vertical {
+width: 2px;
+height: 40px;
+background: #34495e;
+left: -21px;
+top: 50%;
+transform: translateY(-50%);
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"><body>
+<header>
+GUAI BORDEL'SS 2025
+<section id="resultats" class="section active">
+Résultats des matchsAfficher classementAfficher phase finaleVeuillez choisir un sport et un type de match.
+const sports = {
+handball: {
+nom: "Handball",
+emoji: "🤾‍♂️",
+urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv"
+},
+rugby: {
+nom: "Rugby",
+emoji: "🏉",
+urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
+}
+// Ajouter d'autres sports ici si nécessaire
+};
+const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
+let sportSelectionne = null;
+let typeMatchSelectionne = null;
+let dataCSV = null;
+// Onglets sports dans nav
+function createSportTabs() {
+const nav = document.getElementById('nav-sports');
+nav.innerHTML = '';
+Object.entries(sports).forEach(([key, sport], index) => {
+const btn = document.createElement('button');
+btn.textContent = ${sport.emoji} ${sport.nom};
+btn.onclick = () => {
+sportSelectionne = key;
+typeMatchSelectionne = null;
+dataCSV = null;
+clearTypeMatchButtons();
+document.getElementById('container-resultats').innerHTML = 'Chargement des données...';
+loadCSVData(key);
+setActiveButton(nav, btn);
+hideBoutons();
+};
+if(index === 0) {
+btn.classList.add('active');
+sportSelectionne = key;
+loadCSVData(key);
+}
+nav.appendChild(btn);
+});
+}
+function setActiveButton(container, activeBtn) {
+[...container.children].forEach(b => b.classList.remove('active'));
+activeBtn.classList.add('active');
+}
+// (autres fonctions de traitement nécessaires ici)
+</script>
