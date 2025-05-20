@@ -5,125 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GUAI BORDEL'SS 2025</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background-color: #f4f4f4;
-      color: #333;
-    }
-    header {
-      background: #2c3e50;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    img.logo {
-      max-height: 80px;
-      vertical-align: middle;
-    }
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      background: #34495e;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    nav button:hover, nav button.active {
-      background-color: #bdc3c7;
-    }
-    .content {
-      max-width: 900px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .section {
-      display: none;
-    }
-    .section.active {
-      display: block;
-    }
-    .sports-buttons, .poule-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-    }
-    .sport-button, .poule-button {
-      margin: 5px 10px;
-      padding: 8px 15px;
-      font-size: 18px;
-      cursor: pointer;
-      background: #ecf0f1;
-      border: none;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-    .sport-button:hover, .poule-button:hover,
-    .sport-button.active, .poule-button.active {
-      background-color: #bdc3c7;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ddd;
-      text-align: center;
-    }
-    th {
-      background: #34495e;
-      color: #fff;
-    }
-    .message {
-      text-align: center;
-      font-style: italic;
-      margin-top: 1rem;
-      color: #666;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; margin:0; padding:0; }
+    header { background:#2c3e50; color:#fff; padding:1rem; text-align:center; }
+    nav { display:flex; justify-content:center; background:#34495e; }
+    nav button { margin:5px; padding:10px 20px; font-size:16px; background:#ecf0f1; border:none; border-radius:5px; cursor:pointer; }
+    nav button:hover, nav button.active { background:#bdc3c7; }
+    .content { max-width:900px; margin:auto; padding:1rem; }
+    .section { display:none; }
+    .section.active { display:block; }
+    .filter-buttons { display:flex; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
+    .filter-button { margin:5px 10px; padding:8px 15px; font-size:18px; cursor:pointer; background:#ecf0f1; border:none; border-radius:5px; transition: background-color 0.3s; }
+    .filter-button:hover, .filter-button.active { background:#bdc3c7; }
+    table { width:100%; border-collapse:collapse; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    th, td { padding:8px; border:1px solid #ddd; text-align:center; }
+    th { background:#34495e; color:#fff; }
+    .message { text-align:center; font-style:italic; margin-top:1rem; color:#666; }
   </style>
 </head>
 <body>
   <header>
-    <img src="logo.png" alt="Logo" class="logo" />
     <h1>GUAI BORDEL'SS 2025</h1>
   </header>
 
   <nav>
-    <button id="btn-accueil" class="active" onclick="showSection('accueil')">Accueil</button>
-    <button id="btn-resultats" onclick="showSection('resultats')">Résultats</button>
-    <button id="btn-phase-finale" onclick="showSection('phase-finale')">Phase finale</button>
-    <button id="btn-contact-urgence" onclick="showSection('contact-urgence')">contact urgence</button>
+    <button id="btn-resultats" class="active" onclick="showSection('resultats')">Résultats</button>
   </nav>
 
   <div class="content">
-    <section id="accueil" class="section active">
-      <h2>Bienvenue !</h2>
-      <p>Retrouvez toutes les informations des GUAI BORDEL'SS 2025.</p>
-    </section>
-
-    <section id="resultats" class="section">
+    <section id="resultats" class="section active">
       <h2>Résultats des matchs</h2>
-      <div class="sports-buttons" id="buttons-resultats"></div>
-      <div class="poule-buttons" id="buttons-poules-resultats"></div>
-      <div id="container-resultats" class="message">Veuillez choisir un sport et une poule.</div>
-    </section>
 
+      <div class="filter-buttons" id="buttons-sports"></div>
+      <div class="filter-buttons" id="buttons-type-match"></div>
 
-    <section id="phase-finale" class="section">
-      <h2>Phase finale</h2>
-      <div class="sports-buttons" id="buttons-phase-finale"></div>
-      <div id="container-phase-finale" class="message">Veuillez choisir un sport.</div>
+      <div id="container-resultats" class="message">Veuillez choisir un sport et un type de match.</div>
     </section>
   </div>
 
@@ -132,38 +47,38 @@
       handball: {
         nom: "Handball",
         emoji: "🤾‍♂️",
-        resultats: {
-          A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv",
-          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=111111111&single=true&output=csv"
-        },
-        phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv"
+        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv" // remplacer par ton vrai lien CSV
       },
       rugby: {
         nom: "Rugby",
         emoji: "🏉",
-        resultats: {
-          A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv",
-          B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=222222222&single=true&output=csv"
-        },
-        phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
+        urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv" // remplacer par ton vrai lien CSV
       }
-      // Ajouter d'autres sports ici si besoin
+      // Ajouter d'autres sports ici
     };
+
+    // Types de match à filtrer
+    const typesMatchs = ["Poule A", "Poule B", "Demi-finale", "Finale"];
+
+    let sportSelectionne = null;
+    let typeMatchSelectionne = null;
+    let dataCSV = null; // stockera toutes les données du CSV chargé
 
     function showSection(id) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById('btn-' + id).classList.add('active');
-      if (id === 'resultats') {
-        resetResultatsSelection();
-      } else if (id === 'phase-finale') {
-        resetPhaseFinaleSelection();
-      }
     }
 
     function parseCSV(csvText) {
       return csvText.trim().split('\n').map(line => {
+        // support basique pour les cellules entre guillemets avec virgules
+        const regex = /(?:,|\n|^)(?:"([^"]*)"|([^",\n]*))/g;
+        const row = [];
+        let match;
+        let lineText = line;
+        // Simple split by comma here (attention aux virgules dans champs, à améliorer si besoin)
         return line.split(',').map(cell => cell.trim());
       });
     }
@@ -174,152 +89,115 @@
       return parseCSV(await res.text());
     }
 
-    function createSportButtons(containerId, onClick) {
-      const container = document.getElementById(containerId);
+    // Crée les boutons pour choisir un sport
+    function createSportButtons() {
+      const container = document.getElementById('buttons-sports');
       container.innerHTML = '';
       Object.entries(sports).forEach(([key, sport]) => {
         const btn = document.createElement('button');
-        btn.className = 'sport-button';
+        btn.className = 'filter-button';
         btn.innerText = `${sport.emoji} ${sport.nom}`;
         btn.onclick = () => {
           container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          onClick(key);
+          sportSelectionne = key;
+          typeMatchSelectionne = null;
+          dataCSV = null;
+          clearTypeMatchButtons();
+          loadDataAndShowTypes(key);
+          document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un type de match.';
         };
         container.appendChild(btn);
       });
     }
 
-    // Nouvelle fonction : crée boutons poules d'après keys disponibles dans resultats du sport
-    function createPouleButtonsDynamic(containerId, sportKey, onClick) {
-      const container = document.getElementById(containerId);
+    function clearTypeMatchButtons() {
+      document.getElementById('buttons-type-match').innerHTML = '';
+    }
+
+    // Crée les boutons pour choisir le type de match
+    function createTypeMatchButtons(types) {
+      const container = document.getElementById('buttons-type-match');
       container.innerHTML = '';
-      const poules = Object.keys(sports[sportKey].resultats);
-      if (poules.length === 0) {
-        container.innerHTML = 'Aucune poule disponible.';
-        return;
-      }
-      poules.forEach(poule => {
+      types.forEach(type => {
         const btn = document.createElement('button');
-        btn.className = 'poule-button';
-        btn.innerText = 'Poule ' + poule;
+        btn.className = 'filter-button';
+        btn.innerText = type;
         btn.onclick = () => {
           container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          onClick(poule);
+          typeMatchSelectionne = type;
+          afficherResultatsFiltrees();
         };
         container.appendChild(btn);
       });
     }
 
-    async function afficherResultats(sportKey, poule) {
-  const container = document.getElementById('container-resultats');
-  container.innerHTML = 'Chargement des résultats...';
-  try {
-    // On prend l'URL unique (exemple : prendre la poule A dans ton objet, car A et B ont même lien)
-    const url = sports[sportKey].resultats.A; // même lien pour A et B
-
-    if (!url) {
-      container.innerHTML = 'Aucun lien disponible.';
-      return;
-    }
-
-    const data = await fetchCSV(url);
-    if (data.length < 2) {
-      container.innerHTML = 'Aucun résultat disponible.';
-      return;
-    }
-
-    const headers = data[0];
-    const rows = data.slice(1);
-
-    // Trouver l'index de la colonne poule (par ex. "Poule", "Groupe", etc.)
-    // Ici on suppose que la colonne s'appelle exactement "Poule" (adapter si besoin)
-    const idxPoule = headers.findIndex(h => h.toLowerCase() === 'poule');
-
-    if (idxPoule === -1) {
-      container.innerHTML = 'Colonne "Poule" introuvable dans les résultats.';
-      return;
-    }
-
-    // Filtrer les lignes selon la poule choisie
-    const filteredRows = rows.filter(row => row[idxPoule] === poule);
-
-    if (filteredRows.length === 0) {
-      container.innerHTML = `Aucun résultat pour la poule ${poule}.`;
-      return;
-    }
-
-    // Construire le tableau avec lignes filtrées
-    let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-    html += filteredRows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
-    html += '</tbody></table>';
-    container.innerHTML = html;
-
-  } catch (e) {
-    container.innerHTML = 'Erreur lors du chargement des résultats.';
-    console.error(e);
-  }
-}
-
-
-    async function afficherPhaseFinale(sportKey) {
-      const container = document.getElementById('container-phase-finale');
-      container.innerHTML = 'Chargement de la phase finale...';
+    // Charge le CSV, stocke les données dans dataCSV puis affiche les boutons types de match disponibles (uniques dans CSV)
+    async function loadDataAndShowTypes(sportKey) {
+      const url = sports[sportKey].urlCSV;
       try {
-        const url = sports[sportKey].phaseFinale;
-        if (!url) {
-          container.innerHTML = 'Aucun lien disponible pour la phase finale.';
-          return;
-        }
         const data = await fetchCSV(url);
-        if (data.length < 2) {
-          container.innerHTML = 'Aucun match de phase finale disponible.';
+        dataCSV = data;
+
+        // Trouver index de la colonne "Type de match" (ignore casse)
+        const headers = data[0];
+        const idxTypeMatch = headers.findIndex(h => h.toLowerCase() === 'type de match');
+
+        if (idxTypeMatch === -1) {
+          document.getElementById('container-resultats').innerHTML = 'Colonne "Type de match" introuvable dans la source.';
+          clearTypeMatchButtons();
           return;
         }
-        const headers = data[0];
-        const rows = data.slice(1);
-        let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-        html += rows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      } catch (e) {
-        container.innerHTML = 'Erreur lors du chargement de la phase finale.';
+
+        // Récupérer tous les types uniques dans la colonne "Type de match"
+        const uniqueTypes = [...new Set(data.slice(1).map(row => row[idxTypeMatch]))].filter(t => t);
+
+        // Trier types selon ordre défini dans typesMatchs, puis ajouter les autres si besoin
+        const sortedTypes = typesMatchs.filter(t => uniqueTypes.includes(t))
+                           .concat(uniqueTypes.filter(t => !typesMatchs.includes(t)));
+
+        createTypeMatchButtons(sortedTypes);
+
+      } catch(e) {
+        document.getElementById('container-resultats').innerHTML = 'Erreur lors du chargement des données.';
         console.error(e);
       }
     }
 
-    // Variables pour stocker les sélections
-    let sportSelectionne = null;
-    let pouleSelectionnee = null;
+    // Affiche dans le tableau uniquement les lignes filtrées selon sportSelectionne et typeMatchSelectionne
+    function afficherResultatsFiltrees() {
+      const container = document.getElementById('container-resultats');
+      if (!dataCSV || !sportSelectionne || !typeMatchSelectionne) {
+        container.innerHTML = 'Veuillez choisir un sport et un type de match.';
+        return;
+      }
 
-    function resetResultatsSelection() {
-      document.getElementById('buttons-resultats').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      document.getElementById('buttons-poules-resultats').innerHTML = '';
-      document.getElementById('container-resultats').innerHTML = 'Veuillez choisir un sport et une poule.';
-      sportSelectionne = null;
-      pouleSelectionnee = null;
+      const headers = dataCSV[0];
+      const idxTypeMatch = headers.findIndex(h => h.toLowerCase() === 'type de match');
+
+      if (idxTypeMatch === -1) {
+        container.innerHTML = 'Colonne "Type de match" introuvable.';
+        return;
+      }
+
+      // Filtrer lignes par type de match choisi
+      const filteredRows = dataCSV.slice(1).filter(row => row[idxTypeMatch] === typeMatchSelectionne);
+
+      if (filteredRows.length === 0) {
+        container.innerHTML = `Aucun résultat trouvé pour "${typeMatchSelectionne}".`;
+        return;
+      }
+
+      let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+      html += filteredRows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
+      html += '</tbody></table>';
+
+      container.innerHTML = html;
     }
 
-    function resetPhaseFinaleSelection() {
-      document.getElementById('buttons-phase-finale').querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      document.getElementById('container-phase-finale').innerHTML = 'Veuillez choisir un sport.';
-    }
-
-    // Initialisation des boutons
-    createSportButtons('buttons-resultats', sportKey => {
-      sportSelectionne = sportKey;
-      pouleSelectionnee = null;
-      createPouleButtonsDynamic('buttons-poules-resultats', sportKey, poule => {
-        pouleSelectionnee = poule;
-        afficherResultats(sportKey, poule);
-      });
-      document.getElementById('container-resultats').innerHTML = 'Veuillez choisir une poule.';
-    });
-
-    createSportButtons('buttons-phase-finale', sportKey => {
-      afficherPhaseFinale(sportKey);
-    });
+    // Initialisation
+    createSportButtons();
   </script>
 </body>
 </html>
