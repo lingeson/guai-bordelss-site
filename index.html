@@ -1,128 +1,165 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GUAI BORDEL'SS 2025</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-  </head>
-  <body class="bg-gray-100 text-gray-900">
-    <header class="bg-blue-700 text-white p-4 text-center text-2xl font-bold">
-      GUAI BORDEL'SS 2025
-    </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GUAI BORDEL'SS 2025 - Résultats des Sports</title>
 
-    <nav class="flex flex-wrap justify-center gap-4 p-4 bg-blue-100">
-      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="football">Football</button>
-      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="basket">Basket</button>
-      <button class="sport-btn px-4 py-2 bg-blue-500 text-white rounded" data-sport="volley">Volley</button>
-    </nav>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <main id="content" class="p-4 max-w-4xl mx-auto">
-      <p class="text-center text-lg">Choisissez un sport pour voir les résultats.</p>
-    </main>
+  <!-- PapaParse CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
-    <script>
-      const content = document.getElementById("content");
+  <style>
+    body {
+      min-height: 100vh;
+      background-color: #f3f4f6; /* bg-gray-100 */
+    }
+    nav a.active {
+      @apply bg-blue-600 text-white;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
 
-      const csvUrls = {
-        football: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1216694082&single=true&output=csv",
-        basket: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1829432646&single=true&output=csv",
-        volley: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTKEezczf3sOi1Fuh2UeEtpiDyVCy9PNmCXPONlDyVEg1aa_d3YdICmOVHuhV6EdvqZKmufTmvq-2rl/pub?gid=1819401989&single=true&output=csv",
-      };
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between">
+      <h1 class="text-2xl font-bold text-blue-700">GUAI BORDEL'SS 2025 - Résultats</h1>
+      <nav class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+        <!-- Navigation dynamique via JS -->
+      </nav>
+    </div>
+  </header>
 
-      document.querySelectorAll(".sport-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          const sport = btn.dataset.sport;
-          fetchAndDisplayResults(sport);
+  <main class="container mx-auto px-4 py-8 flex-grow">
+    <section>
+      <h2 id="sport-title" class="text-xl font-semibold mb-4 text-center text-blue-800">Chargement...</h2>
+      <div id="results" class="overflow-auto bg-white rounded shadow-md p-4 max-w-full"></div>
+    </section>
+  </main>
+
+  <footer class="bg-white text-center p-4 text-gray-600 text-sm">
+    &copy; 2025 GUAI BORDEL'SS - Tous droits réservés
+  </footer>
+
+  <script>
+    // Liste des sports et leurs CSV publics Google Sheets
+    const sports = [
+      { name: "Handball", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=0&single=true&output=csv" },
+      { name: "Rugby", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv" },
+      { name: "Foot Masculin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=35127129&single=true&output=csv" },
+      { name: "Volley Masculin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1516588087&single=true&output=csv" },
+      { name: "Basket Masculin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=896073508&single=true&output=csv" },
+      { name: "Basket Féminin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=254686168&single=true&output=csv" },
+      { name: "Foot Féminin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=504548277&single=true&output=csv" },
+      { name: "Volley Féminin", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1381709457&single=true&output=csv" },
+      { name: "Tennis", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=1395710737&single=true&output=csv" },
+      { name: "Badminton", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=546083894&single=true&output=csv" },
+      { name: "Ping-pong", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
+      { name: "Athlétisme", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=906615525&single=true&output=csv" },
+      { name: "Natation", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=130176564&single=true&output=csv" },
+      { name: "Escalade", url: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=361482653&single=true&output=csv" }
+    ];
+
+    // Elements DOM
+    const nav = document.querySelector("nav");
+    const title = document.getElementById("sport-title");
+    const resultsDiv = document.getElementById("results");
+
+    // Fonction pour créer la nav
+    function createNav() {
+      sports.forEach((sport, i) => {
+        const a = document.createElement("a");
+        a.href = "#";
+        a.textContent = sport.name;
+        a.className = "px-3 py-2 rounded hover:bg-blue-600 hover:text-white transition-colors duration-300";
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          setActiveSport(i);
         });
+        nav.appendChild(a);
       });
+    }
 
-      function fetchAndDisplayResults(sport) {
-        content.innerHTML = `<p class="text-center text-lg">Chargement des résultats pour ${sport}...</p>`;
-        const url = csvUrls[sport];
-
-        Papa.parse(url, {
-          download: true,
-          header: true,
-          complete: function (results) {
-            const data = results.data.filter(row => row.Equipe1 && row.Equipe2);
-            renderResults(sport, data);
-          },
-        });
-      }
-
-      function renderResults(sport, matches) {
-        content.innerHTML = `<h2 class="text-xl font-bold mb-4">Résultats - ${sport}</h2>`;
-
-        const table = document.createElement("table");
-        table.className = "table-auto w-full text-sm text-left bg-white rounded shadow overflow-hidden";
-
-        const thead = document.createElement("thead");
-        thead.innerHTML = `
-          <tr class="bg-blue-200">
-            <th class="p-2">Equipe 1</th>
-            <th class="p-2">Score</th>
-            <th class="p-2">Equipe 2</th>
-          </tr>
-        `;
-
-        const tbody = document.createElement("tbody");
-
-        for (const match of matches) {
-          const row = document.createElement("tr");
-          row.className = "border-t hover:bg-blue-50";
-
-          const score1 = match.Score1 || "-";
-          const score2 = match.Score2 || "-";
-
-          row.innerHTML = `
-            <td class="p-2">${match.Equipe1}</td>
-            <td class="p-2 text-center">${score1} - ${score2}</td>
-            <td class="p-2">${match.Equipe2}</td>
-          `;
-          tbody.appendChild(row);
+    // Gérer le sport actif
+    let currentIndex = 0;
+    function setActiveSport(index) {
+      currentIndex = index;
+      // Mise à jour nav active
+      Array.from(nav.children).forEach((link, i) => {
+        if(i === index) {
+          link.classList.add("bg-blue-600", "text-white");
+        } else {
+          link.classList.remove("bg-blue-600", "text-white");
         }
+      });
+      // Mettre à jour le titre
+      title.textContent = sports[index].name;
+      // Charger le CSV
+      loadCSV(sports[index].url);
+    }
 
-        table.appendChild(thead);
-        table.appendChild(tbody);
-        content.appendChild(table);
+    // Fonction de chargement CSV et affichage
+    function loadCSV(url) {
+      resultsDiv.innerHTML = "<p class='text-center text-gray-500'>Chargement des données...</p>";
 
-        // Générer les phases finales si nécessaire
-        if (matches.length >= 4) {
-          const finalists = calculateFinalists(matches);
-          renderFinalPhases(finalists);
-        }
-      }
-
-      function calculateFinalists(matches) {
-        const scores = {};
-        matches.forEach(({ Equipe1, Equipe2, Score1, Score2 }) => {
-          const s1 = parseInt(Score1);
-          const s2 = parseInt(Score2);
-          if (!isNaN(s1) && !isNaN(s2)) {
-            scores[Equipe1] = (scores[Equipe1] || 0) + (s1 > s2 ? 3 : s1 === s2 ? 1 : 0);
-            scores[Equipe2] = (scores[Equipe2] || 0) + (s2 > s1 ? 3 : s1 === s2 ? 1 : 0);
+      Papa.parse(url, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          const data = results.data;
+          if(data.length === 0) {
+            resultsDiv.innerHTML = "<p class='text-red-600 text-center'>Aucune donnée disponible.</p>";
+            return;
           }
-        });
-        return Object.entries(scores)
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 4)
-          .map(([team]) => team);
-      }
+          resultsDiv.innerHTML = "";
+          resultsDiv.appendChild(createTable(data));
+        },
+        error: function(err) {
+          resultsDiv.innerHTML = `<p class='text-red-600 text-center'>Erreur de chargement : ${err.message}</p>`;
+        }
+      });
+    }
 
-      function renderFinalPhases(teams) {
-        const bracket = document.createElement("div");
-        bracket.className = "mt-8 p-4 bg-gray-200 rounded";
-        bracket.innerHTML = `<h3 class="text-lg font-semibold mb-2">Phases Finales</h3>
-          <p>Demi-finales :</p>
-          <ul class="list-disc ml-5">
-            <li>${teams[0]} vs ${teams[3]}</li>
-            <li>${teams[1]} vs ${teams[2]}</li>
-          </ul>
-        `;
-        content.appendChild(bracket);
-      }
-    </script>
-  </body>
+    // Fonction de création d'un tableau HTML à partir d'un array d'objets
+    function createTable(data) {
+      const table = document.createElement("table");
+      table.className = "w-full border border-gray-300 rounded";
+
+      // En-tête
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      Object.keys(data[0]).forEach(key => {
+        const th = document.createElement("th");
+        th.textContent = key;
+        th.className = "border border-gray-300 px-3 py-2 bg-gray-200 text-left text-sm font-semibold";
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      // Corps
+      const tbody = document.createElement("tbody");
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        Object.values(row).forEach(val => {
+          const td = document.createElement("td");
+          td.textContent = val;
+          td.className = "border border-gray-300 px-3 py-2 text-sm";
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      return table;
+    }
+
+    // Initialisation
+    createNav();
+    setActiveSport(0); // Charge le premier sport au départ
+  </script>
+</body>
 </html>
