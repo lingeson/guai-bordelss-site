@@ -213,30 +213,55 @@
     }
 
     async function afficherResultats(sportKey, poule) {
-      const container = document.getElementById('container-resultats');
-      container.innerHTML = 'Chargement des résultats...';
-      try {
-        const url = sports[sportKey].resultats[poule];
-        if (!url) {
-          container.innerHTML = 'Aucun lien disponible pour cette poule.';
-          return;
-        }
-        const data = await fetchCSV(url);
-        if (data.length < 2) {
-          container.innerHTML = 'Aucun résultat disponible.';
-          return;
-        }
-        const headers = data[0];
-        const rows = data.slice(1);
-        let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-        html += rows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
-        html += '</tbody></table>';
-        container.innerHTML = html;
-      } catch (e) {
-        container.innerHTML = 'Erreur lors du chargement des résultats.';
-        console.error(e);
-      }
+  const container = document.getElementById('container-resultats');
+  container.innerHTML = 'Chargement des résultats...';
+  try {
+    // On prend l'URL unique (exemple : prendre la poule A dans ton objet, car A et B ont même lien)
+    const url = sports[sportKey].resultats.A; // même lien pour A et B
+
+    if (!url) {
+      container.innerHTML = 'Aucun lien disponible.';
+      return;
     }
+
+    const data = await fetchCSV(url);
+    if (data.length < 2) {
+      container.innerHTML = 'Aucun résultat disponible.';
+      return;
+    }
+
+    const headers = data[0];
+    const rows = data.slice(1);
+
+    // Trouver l'index de la colonne poule (par ex. "Poule", "Groupe", etc.)
+    // Ici on suppose que la colonne s'appelle exactement "Poule" (adapter si besoin)
+    const idxPoule = headers.findIndex(h => h.toLowerCase() === 'poule');
+
+    if (idxPoule === -1) {
+      container.innerHTML = 'Colonne "Poule" introuvable dans les résultats.';
+      return;
+    }
+
+    // Filtrer les lignes selon la poule choisie
+    const filteredRows = rows.filter(row => row[idxPoule] === poule);
+
+    if (filteredRows.length === 0) {
+      container.innerHTML = `Aucun résultat pour la poule ${poule}.`;
+      return;
+    }
+
+    // Construire le tableau avec lignes filtrées
+    let html = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+    html += filteredRows.map(row => '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>').join('');
+    html += '</tbody></table>';
+    container.innerHTML = html;
+
+  } catch (e) {
+    container.innerHTML = 'Erreur lors du chargement des résultats.';
+    console.error(e);
+  }
+}
+
 
     async function afficherPhaseFinale(sportKey) {
       const container = document.getElementById('container-phase-finale');
