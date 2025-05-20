@@ -1,328 +1,225 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>GUAI BORDEL'SS 2025 - Résultats & Phase finale</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    margin:0; padding:0;
-    background:#f4f4f4;
-    color:#333;
-  }
-  header {
-    background:#2c3e50;
-    color:#fff;
-    text-align:center;
-    padding:1rem;
-  }
-  img.logo {
-    max-height:80px;
-    vertical-align:middle;
-  }
-  nav {
-    background:#34495e;
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    padding:0.5rem;
-  }
-  nav button {
-    margin:5px;
-    padding:10px 20px;
-    font-size:16px;
-    background:#ecf0f1;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    transition:background-color 0.3s;
-  }
-  nav button:hover, nav button.active {
-    background:#bdc3c7;
-  }
-  .content {
-    max-width:900px;
-    margin:auto;
-    padding:1rem;
-  }
-  .section {
-    display:none;
-  }
-  .section.active {
-    display:block;
-  }
-  .sports-buttons, .poule-buttons {
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    margin-bottom:1rem;
-  }
-  .sport-button, .poule-button {
-    margin:5px 10px;
-    padding:8px 15px;
-    font-size:18px;
-    cursor:pointer;
-    background:#ecf0f1;
-    border:none;
-    border-radius:5px;
-    transition:background-color 0.3s;
-  }
-  .sport-button:hover, .poule-button:hover,
-  .sport-button.active, .poule-button.active {
-    background:#bdc3c7;
-  }
-  table {
-    width:100%;
-    border-collapse:collapse;
-    background:#fff;
-    box-shadow:0 2px 4px rgba(0,0,0,0.1);
-  }
-  th, td {
-    padding:8px;
-    border:1px solid #ddd;
-    text-align:center;
-  }
-  th {
-    background:#34495e;
-    color:#fff;
-  }
-  .message {
-    text-align:center;
-    font-style:italic;
-    margin-top:1rem;
-    color:#666;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GUAI BORDEL'SS 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    img.logo {
+      max-height: 80px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      background: #34495e;
+    }
+    nav button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #ecf0f1;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .content {
+      padding: 1rem;
+    }
+    .section {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    @media (max-width: 600px) {
+      nav button {
+        width: 90%;
+      }
+    }
+    .sports-buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .sport-button {
+      margin: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 10px;
+      background-color: #ecf0f1;
+      border: none;
+      border-radius: 5px;
+    }
+    .sport-button:hover {
+      background-color: #bdc3c7;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+    th {
+      background-color: #34495e;
+      color: white;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <img src="logo.png" alt="Logo" class="logo" />
+    <h1>GUAI BORDEL'SS 2025</h1>
+  </header>
 
-<header>
-  <img src="logo.png" alt="Logo" class="logo" />
-  <h1>GUAI BORDEL'SS 2025</h1>
-</header>
+  <nav>
+    <button onclick="showSection('accueil')">Accueil</button>
+    <button onclick="showSection('sports')">Résultats des matchs</button>
+    <button onclick="showSection('classement')">Classement</button>
+  </nav>
 
-<nav>
-  <button id="btn-accueil" class="active" onclick="showSection('accueil')">Accueil</button>
-  <button id="btn-resultats" onclick="showSection('resultats')">Résultats</button>
-  <button id="btn-phase-finale" onclick="showSection('phase-finale')">Phase finale</button>
-</nav>
+  <div class="content">
+    <div id="accueil" class="section active">
+      <h2>Bienvenue !</h2>
+      <p>Retrouvez ici toutes les infos des GUAI BORDEL'SS 2025.</p>
+    </div>
 
-<div class="content">
+    <div id="sports" class="section">
+      <h2>Résultats des matchs</h2>
+      <div class="sports-buttons">
+        <button class="sport-button" onclick="fetchMatches('Rugby')">🏈 Rugby</button>
+        <button class="sport-button" onclick="fetchMatches('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="fetchMatches('Handball')">🏀 Handball</button>
+        <button class="sport-button" onclick="fetchMatches('Natation')">🏊 Natation</button>
+        <button class="sport-button" onclick="fetchMatches('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchMatches('Badminton')">🏸 Badminton</button>
+      </div>
+      <div id="matches">
+        <!-- Les résultats des matchs seront affichés ici -->
+      </div>
+    </div>
 
-  <!-- Accueil -->
-  <section id="accueil" class="section active">
-    <h2>Bienvenue !</h2>
-    <p>Retrouvez toutes les informations des GUAI BORDEL'SS 2025.</p>
-  </section>
+    <div id="classement" class="section">
+      <h2>Classement</h2>
+      <div class="sports-buttons">
+        <button class="sport-button" onclick="fetchRanking('Rugby')">🏈 Rugby</button>
+        <button class="sport-button" onclick="fetchRanking('Football')">⚽ Football</button>
+        <button class="sport-button" onclick="fetchRanking('Handball')">🏀 Handball</button>
+        <button class="sport-button" onclick="fetchRanking('Natation')">🏊 Natation</button>
+        <button class="sport-button" onclick="fetchRanking('Athlétisme')">🏃 Athlétisme</button>
+        <button class="sport-button" onclick="fetchRanking('Badminton')">🏸 Badminton</button>
+      </div>
+      <div id="classement-table">
+        <!-- Classement sera injecté ici -->
+        <p>Chargement du classement...</p>
+      </div>
+    </div>
+  </div>
 
-  <!-- Résultats -->
-  <section id="resultats" class="section">
-    <h2>Résultats des matchs</h2>
-    <div class="sports-buttons" id="buttons-resultats"></div>
-    <div class="poule-buttons" id="buttons-poules-resultats"></div>
-    <div id="container-resultats" class="message">Veuillez choisir un sport et une poule.</div>
-  </section>
+  <script>
+    const spreadsheetId = '1_I7gPvoryoMh97V6F4DLdQIV2Qe32nKzpyOMZBXuELE';
+    const apiKey = 'AIzaSyBGqj9NhXyWpM1henheaesQEfEpZ45kdjU';
 
-  <!-- Phase finale -->
-  <section id="phase-finale" class="section">
-    <h2>Phase finale</h2>
-    <div class="sports-buttons" id="buttons-phase-finale"></div>
-    <div id="container-phase-finale" class="message">Veuillez choisir un sport.</div>
-  </section>
-
-</div>
-
-<script>
-  /* ----------- Configuration des sports et CSV ----------- */
-  const sports = {
-    handball: {
-      nom: "Handball",
-      emoji: "🤾‍♂️",
-      // Résultats par poule (A et B)
-      resultats: {
-        A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQpiogP-Kxoy3rgyFf1nEZd6GxJ_3mcB7pR6LuBPnEP1Y2ThgIOT6qThTDmgv4uV4O3zzl2ZgAZMlu/pub?output=csv",
-        B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQpyqABCdEfgh/pub?output=csv" // Exemple poule B
-      },
-      phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRANDOMFINAL/pub?output=csv"
-    },
-    rugby: {
-      nom: "Rugby",
-      emoji: "🏉",
-      resultats: {
-        A: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRXr9r0Rbn6xQ7tU7BaV2acg9goIg3B8aIQVbLKo9VaSo4cD2zRfcmWEy-ykMmn6cAfKbe7Bbi1Dz2F/pub?output=csv",
-        B: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRUGBYB/pub?output=csv"
-      },
-      phaseFinale: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRANDOMFINALRUGBY/pub?output=csv"
-    }
-    // Ajoute d'autres sports si besoin, avec les URLs appropriées
-  };
-
-  /* ----------- Gestion de l'affichage des sections ----------- */
-  function showSection(id) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-' + id).classList.add('active');
-  }
-
-  /* ----------- Fonction simple pour parser CSV en tableau ----------- */
-  function parseCSV(csvText) {
-    const lines = csvText.trim().split('\n');
-    return lines.map(line => {
-      // On divise par virgule, sans gestion complexe des guillemets (ajouter si besoin)
-      return line.split(',').map(cell => cell.trim());
-    });
-  }
-
-  /* ----------- Récupération et parsing CSV via fetch ----------- */
-  async function fetchCSV(url) {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`Erreur HTTP ${res.status}`);
-      const text = await res.text();
-      return parseCSV(text);
-    } catch (e) {
-      console.error('Erreur fetchCSV:', e);
-      throw e;
-    }
-  }
-
-  /* ----------- Création dynamique des boutons sports ----------- */
-  function createSportButtons(containerId, onClick) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    Object.entries(sports).forEach(([key, sport]) => {
-      const btn = document.createElement('button');
-      btn.className = 'sport-button';
-      btn.innerText = `${sport.emoji} ${sport.nom}`;
-      btn.title = sport.nom;
-      btn.onclick = () => {
-        // Désactive tous les boutons
-        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        onClick(key);
-      };
-      container.appendChild(btn);
-    });
-  }
-
-  /* ----------- Gestion des boutons poules pour résultats ----------- */
-  function createPouleButtons(containerId, onClick) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = '';
-    ['A', 'B'].forEach(poule => {
-      const btn = document.createElement('button');
-      btn.className = 'poule-button';
-      btn.innerText = 'Poule ' + poule;
-      btn.onclick = () => {
-        container.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        onClick(poule);
-      };
-      container.appendChild(btn);
-    });
-  }
-
-  /* ----------- Affichage des résultats selon sport et poule ----------- */
-  async function afficherResultats(sportKey, poule) {
-    const container = document.getElementById('container-resultats');
-    container.innerHTML = 'Chargement des résultats...';
-
-    const sport = sports[sportKey];
-    if (!sport || !sport.resultats[poule]) {
-      container.innerHTML = 'Pas de données pour ce sport ou cette poule.';
-      return;
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
     }
 
-    try {
-      const rows = await fetchCSV(sport.resultats[poule]);
-      if (rows.length < 2) {
-        container.innerHTML = 'Aucun résultat disponible.';
+    async function fetchMatches(sport) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const rows = data.values;
+
+      const matchesContainer = document.getElementById('matches');
+      matchesContainer.innerHTML = '';
+
+      if (!rows || rows.length < 2) {
+        matchesContainer.innerHTML = '<p>Aucun match trouvé.</p>';
         return;
       }
-      const headers = rows[0];
-      const data = rows.slice(1);
 
-      let html = '<table><thead><tr>';
-      headers.forEach(h => html += `<th>${h}</th>`);
-      html += '</tr></thead><tbody>';
+      const dataRows = rows.slice(1);
+      dataRows.forEach(row => {
+        const teamA = row[0];
+        const teamB = row[1];
+        const scoreA = row[2];
+        const scoreB = row[3];
+        const date = row[4];
 
-      data.forEach(row => {
-        html += '<tr>';
-        row.forEach(cell => html += `<td>${cell}</td>`);
-        html += '</tr>';
+        const matchHTML = `
+          <div class="match">
+            <h3>${sport} - ${date}</h3>
+            <p>${teamA} ${scoreA} - ${scoreB} ${teamB}</p>
+          </div>
+        `;
+        matchesContainer.innerHTML += matchHTML;
       });
-
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    } catch {
-      container.innerHTML = 'Erreur lors du chargement des résultats.';
-    }
-  }
-
-  /* ----------- Affichage phase finale ----------- */
-  async function afficherPhaseFinale(sportKey) {
-    const container = document.getElementById('container-phase-finale');
-    container.innerHTML = 'Chargement des matchs de la phase finale...';
-
-    const sport = sports[sportKey];
-    if (!sport || !sport.phaseFinale) {
-      container.innerHTML = 'Pas de données de phase finale pour ce sport.';
-      return;
     }
 
-    try {
-      const rows = await fetchCSV(sport.phaseFinale);
-      if (rows.length < 2) {
-        container.innerHTML = 'Aucun match de phase finale disponible.';
+    async function fetchRanking(sport) {
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sport)}?key=${apiKey}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      const rows = data.values;
+
+      const classementDiv = document.getElementById('classement-table');
+      classementDiv.innerHTML = '';
+
+      if (!rows || rows.length < 2) {
+        classementDiv.innerHTML = '<p>Aucun classement disponible.</p>';
         return;
       }
-      const headers = rows[0];
-      const data = rows.slice(1);
 
-      let html = '<table><thead><tr>';
-      headers.forEach(h => html += `<th>${h}</th>`);
-      html += '</tr></thead><tbody>';
+      const dataRows = rows.slice(1);
+      const points = {};
 
-      data.forEach(row => {
-        html += '<tr>';
-        row.forEach(cell => html += `<td>${cell}</td>`);
-        html += '</tr>';
+      dataRows.forEach(row => {
+        const teamA = row[0];
+        const teamB = row[1];
+        const scoreA = parseInt(row[2]);
+        const scoreB = parseInt(row[3]);
+
+        if (!points[teamA]) points[teamA] = 0;
+        if (!points[teamB]) points[teamB] = 0;
+
+        if (scoreA > scoreB) {
+          points[teamA] += 3;
+        } else if (scoreA < scoreB) {
+          points[teamB] += 3;
+        } else {
+          points[teamA] += 1;
+          points[teamB] += 1;
+        }
       });
 
-      html += '</tbody></table>';
-      container.innerHTML = html;
-    } catch {
-      container.innerHTML = 'Erreur lors du chargement de la phase finale.';
+      const sortedTeams = Object.entries(points).sort((a, b) => b[1] - a[1]);
+
+      const table = document.createElement('table');
+      table.innerHTML = `
+        <tr><th>Équipe</th><th>Points</th></tr>
+        ${sortedTeams.map(([team, score]) => `<tr><td>${team}</td><td>${score}</td></tr>`).join('')}
+      `;
+      classementDiv.appendChild(table);
     }
-  }
 
-  /* ----------- Variables globales de sélection ----------- */
-  let sportSelectionneResultats = null;
-  let pouleSelectionnee = null;
-
-  /* ----------- Initialisation Résultats ----------- */
-  createSportButtons('buttons-resultats', sportKey => {
-    sportSelectionneResultats = sportKey;
-    // Reset poule sélectionnée
-    pouleSelectionnee = null;
-    document.getElementById('container-resultats').innerHTML = 'Veuillez choisir une poule.';
-    createPouleButtons('buttons-poules-resultats', poule => {
-      pouleSelectionnee = poule;
-      afficherResultats(sportSelectionneResultats, pouleSelectionnee);
-    });
-  });
-
-  /* ----------- Initialisation Phase Finale ----------- */
-  createSportButtons('buttons-phase-finale', sportKey => {
-    afficherPhaseFinale(sportKey);
-  });
-
-  // Par défaut afficher accueil
-  showSection('accueil');
-</script>
-
+    // Chargement initial
+    fetchMatches('Rugby');
+    fetchRanking('Rugby');
+  </script>
 </body>
 </html>
