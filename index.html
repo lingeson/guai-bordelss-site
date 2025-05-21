@@ -317,6 +317,191 @@
       });
   }
 
+function calculerClassement(data, poule) {
+  const equipes = {};
+
+  data.forEach(match => {
+    const [type, equipeA, equipeB, scoreA, scoreB, , , , , pouleMatch] = match;
+    if (pouleMatch !== poule) return;
+
+    if (!equipes[equipeA]) equipes[equipeA] = { nom: equipeA, points: 0, joues: 0, gagnes: 0, nuls: 0, perdus: 0, bp: 0, bc: 0 };
+    if (!equipes[equipeB]) equipes[equipeB] = { nom: equipeB, points: 0, joues: 0, gagnes: 0, nuls: 0, perdus: 0, bp: 0, bc: 0 };
+
+    const scoreNumA = parseInt(scoreA, 10);
+    const scoreNumB = parseInt(scoreB, 10);
+
+    equipes[equipeA].joues += 1;
+    equipes[equipeB].joues += 1;
+    equipes[equipeA].bp += scoreNumA;
+    equipes[equipeA].bc += scoreNumB;
+    equipes[equipeB].bp += scoreNumB;
+    equipes[equipeB].bc += scoreNumA;
+
+    if (scoreNumA > scoreNumB) {
+      equipes[equipeA].gagnes += 1;
+      equipes[equipeB].perdus += 1;
+      equipes[equipeA].points += 3;
+    } else if (scoreNumA < scoreNumB) {
+      equipes[equipeB].gagnes += 1;
+      equipes[equipeA].perdus += 1;
+      equipes[equipeB].points += 3;
+    } else {
+      equipes[equipeA].nuls += 1;
+      equipes[equipeB].nuls += 1;
+      equipes[equipeA].points += 1;
+      equipes[equipeB].points += 1;
+    }
+  });
+
+  return Object.values(equipes).sort((a, b) => b.points - a.points || (b.bp - b.bc) - (a.bp - a.bc));
+}
+
+function afficherClassement(classement, containerId) {
+  const container = document.getElementById(containerId);
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  thead.innerHTML = `
+    <tr>
+      <th>Équipe</th>
+      <th>Pts</th>
+      <th>J</th>
+      <th>G</th>
+      <th>N</th>
+      <th>P</th>
+      <th>BP</th>
+      <th>BC</th>
+      <th>Diff</th>
+    </tr>
+  `;
+  const tbody = document.createElement('tbody');
+  classement.forEach(equipe => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${equipe.nom}</td>
+      <td>${equipe.points}</td>
+      <td>${equipe.joues}</td>
+      <td>${equipe.gagnes}</td>
+      <td>${equipe.nuls}</td>
+      <td>${equipe.perdus}</td>
+      <td>${equipe.bp}</td>
+      <td>${equipe.bc}</td>
+      <td>${equipe.bp - equipe.bc}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+<div id="phase-finale-container">
+  <div class="match demi-finale">
+    <div class="equipe">1er Poule A</div>
+    <div class="score">vs</div>
+    <div class="equipe">2e Poule B</div>
+  </div>
+  <div class="match demi-finale">
+    <div class="equipe">1er Poule B</div>
+    <div class="score">vs</div>
+    <div class="equipe">2e Poule A</div>
+  </div>
+  <div class="match petite-finale">
+    <div class="equipe">Perdant DF1</div>
+    <div class="score">vs</div>
+    <div class="equipe">Perdant DF2</div>
+  </div>
+  <div class="match finale">
+    <div class="equipe">Gagnant DF1</div>
+    <div class="score">vs</div>
+    <div class="equipe">Gagnant DF2</div>
+  </div>
+</div>
+
+#phase-finale-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.match {
+  display: flex;
+  justify-content: space-between;
+  width: 60%;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #ecf0f1;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.match.demi-finale {
+  border-left: 5px solid #3498db;
+}
+
+.match.petite-finale {
+  border-left: 5px solid #e67e22;
+}
+
+.match.finale {
+  border-left: 5px solid #2ecc71;
+}
+
+.equipe {
+  width: 40%;
+  text-align: center;
+  font-weight: bold;
+}
+
+.score {
+  width: 20%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+function afficherPhaseFinale(equipesQualifiees) {
+  const container = document.getElementById('container-phase-finale');
+  container.innerHTML = '';
+
+  const phaseFinaleContainer = document.createElement('div');
+  phaseFinaleContainer.id = 'phase-finale-container';
+
+  const matchTypes = ['demi-finale', 'demi-finale', 'petite-finale', 'finale'];
+  const matchLabels = [
+    [equipesQualifiees[0], equipesQualifiees[3]],
+    [equipesQualifiees[1], equipesQualifiees[2]],
+    ['Perdant DF1', 'Perdant DF2'],
+    ['Gagnant DF1', 'Gagnant DF2']
+  ];
+
+  matchLabels.forEach((match, index) => {
+    const matchDiv = document.createElement('div');
+    matchDiv.className = `match ${matchTypes[index]}`;
+
+    const equipe1 = document.createElement('div');
+    equipe1.className = 'equipe';
+    equipe1.textContent = match[0];
+
+    const score = document.createElement('div');
+    score.className = 'score';
+    score.textContent = 'vs';
+
+    const equipe2 = document.createElement('div');
+    equipe2.className = 'equipe';
+    equipe2.textContent = match[1];
+
+    matchDiv.appendChild(equipe1);
+    matchDiv.appendChild(score);
+    matchDiv.appendChild(equipe2);
+
+    phaseFinaleContainer.appendChild(matchDiv);
+  });
+
+  container.appendChild(phaseFinaleContainer);
+}
+
+
+
   createSportButtons();
 </script>
 
