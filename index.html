@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -78,6 +77,7 @@
       border-collapse:collapse;
       background:#fff;
       box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom:1rem;
     }
     th, td {
       padding:8px;
@@ -105,9 +105,9 @@
 </header>
 
 <nav>
-  <button class="nav-btn active" onclick="showSection('accueil')">Accueil</button>
-  <button class="nav-btn" onclick="showSection('resultats')">Résultats</button>
-  <button class="nav-btn" onclick="showSection('phase-finale')">Phase finale</button>
+  <button class="nav-btn active" onclick="showSection('accueil', event)">Accueil</button>
+  <button class="nav-btn" onclick="showSection('resultats', event)">Résultats</button>
+  <button class="nav-btn" onclick="showSection('phase-finale', event)">Phase finale</button>
 </nav>
 
 <div class="content">
@@ -145,11 +145,11 @@
     rugby: {
       nom: "Rugby",
       emoji: "🏉",
-      urlCSV: ": https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
+      urlCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWrOq4N-KeChvdjO4JaEyMZVm-e3G1PNxbX-gEhC7xMDo1Y2dV6-Ax28BOJ31voFSPHhR_dNHrDzIT/pub?gid=702928165&single=true&output=csv"
     }
   };
 
-  function showSection(id) {
+  function showSection(id, event) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -182,7 +182,12 @@
       const btn = document.createElement('button');
       btn.className = 'poule-button';
       btn.textContent = poule;
-      btn.onclick = () => fetchAndDisplayWithClassement(csvURL, poule, 'container-resultats');
+      btn.onclick = () => {
+        // Marquer le bouton actif
+        document.querySelectorAll('.poule-button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        fetchAndDisplayWithClassement(csvURL, poule, 'container-resultats');
+      };
       btns.appendChild(btn);
     });
     document.getElementById('container-resultats').innerHTML = "Veuillez choisir une poule.";
@@ -217,41 +222,58 @@
 
           if (m.scoreA > m.scoreB) teams[m.equipeA].pts += 3;
           else if (m.scoreA < m.scoreB) teams[m.equipeB].pts += 3;
-          else { teams[m.equipeA].pts += 1; teams[m.equipeB].pts += 1; }
+          else {
+            teams[m.equipeA].pts += 1;
+            teams[m.equipeB].pts += 1;
+          }
         });
 
-        const classement = Object.entries(teams).map(([nom, stats]) => ({ nom, ...stats }));
+        let classement = Object.entries(teams).map(([equipe, stats]) => ({ equipe, ...stats }));
         classement.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.marque - a.marque);
 
-        // Affichage
         const container = document.getElementById(containerId);
         container.innerHTML = '';
 
-        // Classement
-        const tableClassement = document.createElement('table');
-        tableClassement.innerHTML = `
+        // Tableau classement
+        let htmlClassement = `<h3>Classement - ${pouleName}</h3>
+        <table>
           <thead>
-            <tr><th>Équipe</th><th>Pts</th><th>J</th><th>Diff</th><th>Marqués</th></tr>
+            <tr>
+              <th>Rang</th><th>Équipe</th><th>Pts</th><th>J</th><th>Diff</th><th>Marqué</th>
+            </tr>
           </thead>
           <tbody>
-            ${classement.map(e => `
-              <tr>
-                <td>${e.nom}</td><td>${e.pts}</td><td>${e.joues}</td><td>${e.diff}</td><td>${e.marque}</td>
-              </tr>
-            `).join('')}
+          ${classement.map((c, i) => `<tr>
+            <td>${i+1}</td>
+            <td>${c.equipe}</td>
+            <td>${c.pts}</td>
+            <td>${c.joues}</td>
+            <td>${c.diff}</td>
+            <td>${c.marque}</td>
+          </tr>`).join('')}
           </tbody>
-        `;
-        container.appendChild(tableClassement);
+        </table>`;
 
-        // Résultats
-        const tableMatchs = document.createElement('table');
-        tableMatchs.innerHTML = `
-          <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        // Tableau résultats
+        let htmlMatchs = `<h3>Résultats - ${pouleName}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Équipe A</th><th>Score A</th><th>Score B</th><th>Équipe B</th>
+            </tr>
+          </thead>
           <tbody>
-            ${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}
+            ${matchs.map(m => `<tr>
+              <td>${m.equipeA}</td><td>${m.scoreA}</td><td>${m.scoreB}</td><td>${m.equipeB}</td>
+            </tr>`).join('')}
           </tbody>
-        `;
-        container.appendChild(tableMatchs);
+        </table>`;
+
+        container.innerHTML = htmlClassement + htmlMatchs;
+      })
+      .catch(err => {
+        document.getElementById(containerId).textContent = "Erreur lors du chargement des données.";
+        console.error(err);
       });
   }
 
@@ -262,249 +284,90 @@
         const parsed = Papa.parse(csv.trim(), { skipEmptyLines: true }).data;
         const headers = parsed[0];
         const rows = parsed.slice(1);
-        const getByType = type => rows.filter(row => row[headers.indexOf('Type de match')] === type);
-        const matchByType = type => getByType(type).map(row => ({
-          equipeA: row[headers.indexOf('Équipe A')],
-          equipeB: row[headers.indexOf('Équipe B')],
-          scoreA: parseInt(row[headers.indexOf('Score A')]),
-          scoreB: parseInt(row[headers.indexOf('Score B')])
-        }));
 
-        const pouleA = getByType("Poule A");
-        const pouleB = getByType("Poule B");
-        const getClassement = (rows) => {
-          const teams = {};
-          rows.forEach(r => {
-            const A = r[headers.indexOf('Équipe A')];
-            const B = r[headers.indexOf('Équipe B')];
-            const SA = parseInt(r[headers.indexOf('Score A')]);
-            const SB = parseInt(r[headers.indexOf('Score B')]);
-            [A, B].forEach(e => {
-              if (!teams[e]) teams[e] = { pts: 0, diff: 0, marque: 0, joues: 0 };
-            });
-            teams[A].joues++; teams[B].joues++;
-            teams[A].diff += SA - SB;
-            teams[B].diff += SB - SA;
-            teams[A].marque += SA;
-            teams[B].marque += SB;
-            if (SA > SB) teams[A].pts += 3;
-            else if (SA < SB) teams[B].pts += 3;
-            else { teams[A].pts += 1; teams[B].pts += 1; }
-          });
-          return Object.entries(teams).map(([equipe, stats]) => ({ equipe, ...stats }))
-            .sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.marque - a.marque);
+        // On récupère les résultats des poules A et B (poule A et B)
+        const getRowsByPoule = (poule) => rows.filter(r => r[headers.indexOf('Type de match')] === poule);
+
+        // Calcul classement poule A
+        const classementA = calculClassement(getRowsByPoule('Poule A'), headers);
+        const classementB = calculClassement(getRowsByPoule('Poule B'), headers);
+
+        // Récupérer les résultats des matchs de phase finale s'ils existent (demi-finales, petite finale, finale)
+        const getByType = (type) => rows.filter(r => r[headers.indexOf('Type de match')] === type);
+
+        // Texte des matchs
+        const getScoreText = (type) => {
+          const match = getByType(type)[0];
+          if (match) {
+            const eA = match[headers.indexOf('Équipe A')];
+            const eB = match[headers.indexOf('Équipe B')];
+            const sA = match[headers.indexOf('Score A')];
+            const sB = match[headers.indexOf('Score B')];
+            return `${eA} ${sA} - ${sB} ${eB}`;
+          }
+          return "À venir";
         };
 
-        const classementA = getClassement(pouleA);
-        const classementB = getClassement(pouleB);
+        const df1 = getScoreText("Demi-finale 1") !== "À venir"
+          ? getScoreText("Demi-finale 1")
+          : `${classementA[0]?.equipe || '?'} vs ${classementB[1]?.equipe || '?'}`;
 
-        const DF1 = `${classementA[0].equipe} vs ${classementB[1].equipe}`;
-        const DF2 = `${classementB[0].equipe} vs ${classementA[1].equipe}`;
+        const df2 = getScoreText("Demi-finale 2") !== "À venir"
+          ? getScoreText("Demi-finale 2")
+          : `${classementB[0]?.equipe || '?'} vs ${classementA[1]?.equipe || '?'}`;
 
-        const finale = getByType("Finale")[0];
-        const F = finale
-          ? `${finale[headers.indexOf('Équipe A')]} ${finale[headers.indexOf('Score A')]} - ${finale[headers.indexOf('Score B')]} ${finale[headers.indexOf('Équipe B')]}`
-          : "À venir";
+        const petiteFinale = getScoreText("Petite finale");
+        const finale = getScoreText("Finale");
 
         const container = document.getElementById('container-phase-finale');
+
         container.innerHTML = `
-          <div style="text-align:center; font-size:18px; margin:1rem;">
-            <div><strong>Demi-finale 1 :</strong><br>${DF1}</div><br>
-            <div><strong>Demi-finale 2 :</strong><br>${DF2}</div><br>
-            <div style="margin-top:1rem;font-size:22px;">🏆 <strong>Finale</strong> 🏆<br>${F}</div>
-          </div>
+          <div><strong>Demi-finale 1 :</strong><br>${df1}</div><br>
+          <div><strong>Demi-finale 2 :</strong><br>${df2}</div><br>
+          <div><strong>Petite finale :</strong><br>${petiteFinale}</div><br>
+          <div><strong>Finale :</strong><br>${finale}</div><br>
         `;
+      })
+      .catch(err => {
+        document.getElementById('container-phase-finale').textContent = "Erreur lors du chargement des données.";
+        console.error(err);
       });
   }
 
-function calculerClassement(data, poule) {
-  const equipes = {};
+  function calculClassement(rows, headers) {
+    const teams = {};
+    rows.forEach(row => {
+      const equipeA = row[headers.indexOf('Équipe A')];
+      const equipeB = row[headers.indexOf('Équipe B')];
+      const scoreA = parseInt(row[headers.indexOf('Score A')]);
+      const scoreB = parseInt(row[headers.indexOf('Score B')]);
 
-  data.forEach(match => {
-    const [type, equipeA, equipeB, scoreA, scoreB, , , , , pouleMatch] = match;
-    if (pouleMatch !== poule) return;
+      [equipeA, equipeB].forEach(e => {
+        if (!teams[e]) teams[e] = { pts: 0, joues: 0, diff: 0, marque: 0, equipe: e };
+      });
+      teams[equipeA].joues++;
+      teams[equipeB].joues++;
+      teams[equipeA].marque += scoreA;
+      teams[equipeB].marque += scoreB;
+      teams[equipeA].diff += scoreA - scoreB;
+      teams[equipeB].diff += scoreB - scoreA;
 
-    if (!equipes[equipeA]) equipes[equipeA] = { nom: equipeA, points: 0, joues: 0, gagnes: 0, nuls: 0, perdus: 0, bp: 0, bc: 0 };
-    if (!equipes[equipeB]) equipes[equipeB] = { nom: equipeB, points: 0, joues: 0, gagnes: 0, nuls: 0, perdus: 0, bp: 0, bc: 0 };
+      if (scoreA > scoreB) teams[equipeA].pts += 3;
+      else if (scoreA < scoreB) teams[equipeB].pts += 3;
+      else {
+        teams[equipeA].pts += 1;
+        teams[equipeB].pts += 1;
+      }
+    });
+    const classement = Object.values(teams);
+    classement.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.marque - a.marque);
+    return classement;
+  }
 
-    const scoreNumA = parseInt(scoreA, 10);
-    const scoreNumB = parseInt(scoreB, 10);
-
-    equipes[equipeA].joues += 1;
-    equipes[equipeB].joues += 1;
-    equipes[equipeA].bp += scoreNumA;
-    equipes[equipeA].bc += scoreNumB;
-    equipes[equipeB].bp += scoreNumB;
-    equipes[equipeB].bc += scoreNumA;
-
-    if (scoreNumA > scoreNumB) {
-      equipes[equipeA].gagnes += 1;
-      equipes[equipeB].perdus += 1;
-      equipes[equipeA].points += 3;
-    } else if (scoreNumA < scoreNumB) {
-      equipes[equipeB].gagnes += 1;
-      equipes[equipeA].perdus += 1;
-      equipes[equipeB].points += 3;
-    } else {
-      equipes[equipeA].nuls += 1;
-      equipes[equipeB].nuls += 1;
-      equipes[equipeA].points += 1;
-      equipes[equipeB].points += 1;
-    }
-  });
-
-  return Object.values(equipes).sort((a, b) => b.points - a.points || (b.bp - b.bc) - (a.bp - a.bc));
-}
-
-function afficherClassement(classement, containerId) {
-  const container = document.getElementById(containerId);
-  const table = document.createElement('table');
-  const thead = document.createElement('thead');
-  thead.innerHTML = `
-    <tr>
-      <th>Équipe</th>
-      <th>Pts</th>
-      <th>J</th>
-      <th>G</th>
-      <th>N</th>
-      <th>P</th>
-      <th>BP</th>
-      <th>BC</th>
-      <th>Diff</th>
-    </tr>
-  `;
-  const tbody = document.createElement('tbody');
-  classement.forEach(equipe => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${equipe.nom}</td>
-      <td>${equipe.points}</td>
-      <td>${equipe.joues}</td>
-      <td>${equipe.gagnes}</td>
-      <td>${equipe.nuls}</td>
-      <td>${equipe.perdus}</td>
-      <td>${equipe.bp}</td>
-      <td>${equipe.bc}</td>
-      <td>${equipe.bp - equipe.bc}</td>
-    `;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(thead);
-  table.appendChild(tbody);
-  container.appendChild(table);
-}
-
-<div id="phase-finale-container">
-  <div class="match demi-finale">
-    <div class="equipe">1er Poule A</div>
-    <div class="score">vs</div>
-    <div class="equipe">2e Poule B</div>
-  </div>
-  <div class="match demi-finale">
-    <div class="equipe">1er Poule B</div>
-    <div class="score">vs</div>
-    <div class="equipe">2e Poule A</div>
-  </div>
-  <div class="match petite-finale">
-    <div class="equipe">Perdant DF1</div>
-    <div class="score">vs</div>
-    <div class="equipe">Perdant DF2</div>
-  </div>
-  <div class="match finale">
-    <div class="equipe">Gagnant DF1</div>
-    <div class="score">vs</div>
-    <div class="equipe">Gagnant DF2</div>
-  </div>
-</div>
-
-#phase-finale-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 2rem;
-}
-
-.match {
-  display: flex;
-  justify-content: space-between;
-  width: 60%;
-  margin: 1rem 0;
-  padding: 1rem;
-  background-color: #ecf0f1;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.match.demi-finale {
-  border-left: 5px solid #3498db;
-}
-
-.match.petite-finale {
-  border-left: 5px solid #e67e22;
-}
-
-.match.finale {
-  border-left: 5px solid #2ecc71;
-}
-
-.equipe {
-  width: 40%;
-  text-align: center;
-  font-weight: bold;
-}
-
-.score {
-  width: 20%;
-  text-align: center;
-  font-size: 1.2rem;
-}
-
-function afficherPhaseFinale(equipesQualifiees) {
-  const container = document.getElementById('container-phase-finale');
-  container.innerHTML = '';
-
-  const phaseFinaleContainer = document.createElement('div');
-  phaseFinaleContainer.id = 'phase-finale-container';
-
-  const matchTypes = ['demi-finale', 'demi-finale', 'petite-finale', 'finale'];
-  const matchLabels = [
-    [equipesQualifiees[0], equipesQualifiees[3]],
-    [equipesQualifiees[1], equipesQualifiees[2]],
-    ['Perdant DF1', 'Perdant DF2'],
-    ['Gagnant DF1', 'Gagnant DF2']
-  ];
-
-  matchLabels.forEach((match, index) => {
-    const matchDiv = document.createElement('div');
-    matchDiv.className = `match ${matchTypes[index]}`;
-
-    const equipe1 = document.createElement('div');
-    equipe1.className = 'equipe';
-    equipe1.textContent = match[0];
-
-    const score = document.createElement('div');
-    score.className = 'score';
-    score.textContent = 'vs';
-
-    const equipe2 = document.createElement('div');
-    equipe2.className = 'equipe';
-    equipe2.textContent = match[1];
-
-    matchDiv.appendChild(equipe1);
-    matchDiv.appendChild(score);
-    matchDiv.appendChild(equipe2);
-
-    phaseFinaleContainer.appendChild(matchDiv);
-  });
-
-  container.appendChild(phaseFinaleContainer);
-}
-
-
-
+  // Initialisation des boutons à l'ouverture de la page
   createSportButtons();
-</script>
 
+</script>
 
 </body>
 </html>
