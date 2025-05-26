@@ -309,12 +309,12 @@
         <table>
           <thead>
             <tr>
-              <th>Équipe A</th><th>Score A</th><th>Score B</th><th>Équipe B</th>
+              <th>Heure</th><th>Terrain</th><th>Équipe A</th><th>Score A</th><th>Score B</th><th>Équipe B</th>
             </tr>
           </thead>
           <tbody>
             ${matchs.map(m => `<tr>
-              <td>${m.equipeA}</td><td>${m.scoreA}</td><td>${m.scoreB}</td><td>${m.equipeB}</td>
+              <td>${m.heure}</td><td>${m.terrain}</td><td>${m.equipeA}</td><td>${m.scoreA}</td><td>${m.scoreB}</td><td>${m.equipeB}</td>
             </tr>`).join('')}
           </tbody>
         </table>`;
