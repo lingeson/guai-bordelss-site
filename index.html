@@ -249,6 +249,8 @@
         const headers = parsed[0];
         const rows = parsed.slice(1).filter(row => row[headers.indexOf('Type de match')] === pouleName);
         const matchs = rows.map(row => ({
+          heure: row[headers.indexOf('Heure')] || '',   // récupère l'heure
+          terrain: row[headers.indexOf('Terrain')] || '' // récupère le terrain
           equipeA: row[headers.indexOf('Équipe A')],
           equipeB: row[headers.indexOf('Équipe B')],
           scoreA: parseInt(row[headers.indexOf('Score A')]),
