@@ -108,6 +108,8 @@
   <button class="nav-btn active" onclick="showSection('accueil', event)">Accueil</button>
   <button class="nav-btn" onclick="showSection('resultats', event)">Résultats</button>
   <button class="nav-btn" onclick="showSection('phase-finale', event)">Phase finale</button>
+  <button class="nav-btn" onclick="showSection('contacts', event)">Contacts urgence</button>
+
 </nav>
 
 <div class="content">
@@ -131,6 +133,12 @@
     <h2>Phase finale</h2>
     <div class="sports-buttons" id="buttons-phase-finale"></div>
     <div id="container-phase-finale" class="message">Veuillez choisir un sport.</div>
+  </section>
+
+  <!-- Contacts urgence -->
+  <section id="contacts" class="section">
+    <h2>Contacts d'urgence</h2>
+    <div id="contacts-container" class="message">Chargement en cours...</div>
   </section>
 
 </div>
@@ -403,6 +411,57 @@
     classement.sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.marque - a.marque);
     return classement;
   }
+
+
+  // Charger les contacts d'urgence depuis la Google Sheet
+
+  function loadContactsUrgence() {
+    const urlContacts = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQmYzOz96sTTCKN5iZgpnHiTCReyE7Wi2GOaHmqZHsENvUOsBMOZxv3aC1LJH3-VAYq3keHbR_7uW8l/pub?gid=0&single=true&output=csv";
+    fetch(urlContacts)
+    .then(resp => resp.text())
+    .then(csv => {
+      const parsed = Papa.parse(csv.trim(), { skipEmptyLines: true }).data;
+      const headers = parsed[0];
+      const rows = parsed.slice(1);
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      // En-têtes
+      const headRow = document.createElement('tr');
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+
+      // Lignes
+      rows.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      const container = document.getElementById('contacts-container');
+      container.innerHTML = '';
+      container.appendChild(table);
+    })
+    .catch(err => {
+      document.getElementById('contacts-container').innerHTML = "Erreur de chargement.";
+      console.error("Erreur chargement contacts :", err);
+    });
+}
+
+// Charger les contacts au démarrage
+document.addEventListener('DOMContentLoaded', loadContactsUrgence);
 
   // Initialisation des boutons à l'ouverture de la page
   createSportButtons();
